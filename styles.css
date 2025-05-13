@@ -1,27 +1,21 @@
 /* RESET & BODY */
-* {
-  box-sizing: border-box;
-  margin: 0;
-  padding: 0;
-}
+* { box-sizing: border-box; margin: 0; padding: 0; }
 body, html {
   height: 100%;
   width: 100%;
   font-family: 'Segoe UI', sans-serif;
-  background: radial-gradient(circle at top left, #1f0033, #000022);
-  color: #ffffff;
+  background: linear-gradient(135deg, #1a0044, #24007a);
+  color: #fff;
   overflow: hidden;
   display: flex;
   justify-content: center;
   align-items: center;
 }
 
-/* HIDE ELEMENTS */
-.hidden {
-  display: none;
-}
+/* HIDE */
+.hidden { display: none; }
 
-/* START & GAME-OVER SCREENS */
+/* START & GAME‑OVER SCREENS */
 #start-screen, #game-over {
   text-align: center;
 }
@@ -45,17 +39,17 @@ body, html {
 .main-content {
   display: flex;
   gap: 2rem;
-  align-items: stretch;
+  align-items: stretch;     /* panels same height */
   justify-content: center;
   width: 90%;
   max-width: 1200px;
-  height: 80vh;
+  height: 80vh;             /* fixed height for both */
 }
 
 /* QUESTION PANEL */
 .game-panel {
-  flex: 1;
-  background: rgba(255, 255, 255, 0.05);
+  flex: 2;                  /* twice as wide as ladder */
+  background: rgba(255,255,255,0.05);
   backdrop-filter: blur(8px);
   padding: 2rem;
   border-radius: 12px;
@@ -81,19 +75,17 @@ body, html {
   text-shadow: 0 0 4px rgba(0,0,0,0.7);
 }
 
-/* ANSWERS LIST */
+/* ANSWERS */
 #answers {
   list-style: none;
   padding: 0;
-  margin-bottom: 1rem;
+  margin: 1rem 0;
   flex: 1;
   display: flex;
   flex-direction: column;
   justify-content: space-evenly;
 }
-#answers li {
-  margin-bottom: 0.5rem;
-}
+#answers li { margin-bottom: 0.5rem; }
 #answers button {
   width: 100%;
   padding: 0.75rem;
@@ -117,7 +109,7 @@ body, html {
 /* LIFELINES */
 .lifelines {
   display: flex;
-  justify-content: space-around;
+  justify-content: space-between;
   margin: 1rem 0;
 }
 .lifelines button {
@@ -140,20 +132,20 @@ body, html {
   cursor: not-allowed;
 }
 
-/* STATUS MESSAGE */
+/* STATUS */
 #status {
-  margin-top: 1rem;
   text-align: center;
   font-weight: bold;
+  margin-top: 1rem;
   min-height: 1.2em;
 }
 
-/* MONEY LADDER PANEL */
+/* MONEY LADDER */
 .money-ladder {
-  flex: 1;
-  padding: 1rem;
+  flex: 1;                  /* half the width of game-panel */
   background: linear-gradient(180deg, #2b0055, #40007f);
   border-radius: 12px;
+  padding: 1rem;
   box-shadow: 0 4px 20px rgba(0,0,0,0.7);
   overflow-y: auto;
 }
