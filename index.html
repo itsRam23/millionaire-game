@@ -2,29 +2,39 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Who Wants to Be a Millionaire</title>
-  <link rel="stylesheet" href="styles.css" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Who Wants to Be a Millionaire?</title>
+  <link rel="stylesheet" href="styles.css"/>
 </head>
 <body>
-  <div class="game-container">
+
+  <!-- START SCREEN -->
+  <div id="start-screen" class="overlay">
     <h1>Who Wants to Be a Millionaire?</h1>
+    <button id="start-btn" class="btn">Play Game</button>
+  </div>
 
-    <div id="question"></div>
-    <ul id="answers"></ul>
+  <!-- GAME CONTAINER -->
+  <div id="game-container" class="hidden">
+    <div id="question-box" class="card">
+      <div id="question" class="question"></div>
+      <ul id="answers" class="answers"></ul>
 
-    <!-- Lifeline buttons -->
-    <div class="lifelines">
-      <button id="fifty">50/50</button>
-      <button id="audience">Ask the Audience</button>
-      <button id="phone">Phone a Friend</button>
+      <div class="lifelines">
+        <button id="fifty" class="lifeline-btn">50/50</button>
+        <button id="audience" class="lifeline-btn">Ask the Audience</button>
+        <button id="phone" class="lifeline-btn">Phone a Friend</button>
+      </div>
+
+      <div id="prize" class="prize">Prize: $0</div>
+      <div id="status" class="status"></div>
     </div>
+  </div>
 
-    <!-- Prize Display -->
-    <div id="prize">Prize: $0</div> <!-- Added this part -->
-
-    <!-- Feedback like “Correct!” or “Wrong!” -->
-    <div id="status"></div>
+  <!-- END SCREEN -->
+  <div id="end-screen" class="overlay hidden">
+    <div id="end-message" class="card"></div>
+    <button id="restart-btn" class="btn">Play Again</button>
   </div>
 
   <script src="script.js"></script>
