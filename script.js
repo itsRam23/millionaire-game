@@ -83,3 +83,42 @@ const questions = [
     answer: 1
   }
 ];
+
+// 50/50 lifeline: hides two wrong answers
+document.getElementById("fifty").onclick = () => {
+  const correct = questions[current].answer;
+  // Build an array of wrong answer indices
+  const wrongIndices = questions[current].choices
+    .map((_, i) => i)
+    .filter(i => i !== correct)
+    .sort(() => 0.5 - Math.random())
+    .slice(0, 2);
+
+  // Hide those two wrong buttons
+  wrongIndices.forEach(i => {
+    const btn = answersEl.children[i].querySelector("button");
+    btn.style.visibility = "hidden";
+  });
+
+  // Disable the lifeline button so you can’t reuse it
+  document.getElementById("fifty").disabled = true;
+};
+
+// Ask the Audience: simulates audience poll percentages
+document.getElementById("audience").onclick = () => {
+  const correct = questions[current].answer;
+  const results = questions[current].choices.map((choice, i) => {
+    // Give the correct choice a higher random %
+    const base = i === correct ? 50 : 10;
+    return `${choice}: ${base + Math.floor(Math.random() * 41)}%`;
+  });
+  statusEl.textContent = "Audience Poll → " + results.join(", ");
+  document.getElementById("audience").disabled = true;
+};
+
+// Phone a Friend: friend “suggests” the correct answer
+document.getElementById("phone").onclick = () => {
+  const correctText = questions[current].choices[questions[current].answer];
+  statusEl.textContent = `Friend says: "I think it's '${correctText}'."`;
+  document.getElementById("phone").disabled = true;
+};
