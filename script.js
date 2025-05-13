@@ -19,30 +19,33 @@ const questions = [
   { q:"Which country was formerly known as Ceylon?", choices:["Sri Lanka","Thailand","Myanmar","Malawi"], answer:0 },
   { q:"The 'Great Barrier Reef' is located off the coast of which country?", choices:["Australia","New Zealand","South Africa","Indonesia"], answer:0 },
   { q:"What is the longest river in the world?", choices:["Amazon","Nile","Yangtze","Mississippi"], answer:1 },
-  { q:"Which of the following is the hardest natural substance on Earth?", choices:["Gold","Diamond","Iron","Graphene"], answer:1 }
+  { q:"Which is the hardest natural substance?", choices:["Gold","Diamond","Iron","Graphene"], answer:1 }
 ];
 
-let current = 0, timerId, timeLeft = 30, isGameOver = false;
-let usedFifty = false, usedAudience = false, usedPhone = false;
+let current = 0,
+    timerId,
+    timeLeft = 30,
+    isGameOver = false,
+    usedFifty = false,
+    usedAudience = false,
+    usedPhone = false;
 
-const startBtn = document.getElementById("start-button");
-const playAgain = document.getElementById("play-again");
-const startScreen = document.getElementById("start-screen");
-const gameScreen = document.getElementById("game-screen");
-const overScreen = document.getElementById("game-over");
+const startBtn       = document.getElementById("start-button");
+const playAgainBtn   = document.getElementById("play-again");
+const startScreen    = document.getElementById("start-screen");
+const gameScreen     = document.getElementById("game-screen");
+const overScreen     = document.getElementById("game-over");
+const questionEl     = document.getElementById("question");
+const answersEl      = document.getElementById("answers");
+const statusEl       = document.getElementById("status");
+const timerEl        = document.getElementById("timer");
+const ladderEl       = document.getElementById("money-ladder");
+const finalPrizeEl   = document.getElementById("final-prize");
+const overTitle      = document.getElementById("game-over-title");
+const clickSfx       = document.getElementById("click-sfx");
+const bgMusic        = document.getElementById("background-music");
 
-const questionEl = document.getElementById("question");
-const answersEl = document.getElementById("answers");
-const statusEl = document.getElementById("status");
-const timerEl = document.getElementById("timer");
-const ladderEl = document.getElementById("money-ladder");
-const finalPrizeEl = document.getElementById("final-prize");
-const overTitle = document.getElementById("game-over-title");
-
-const clickSfx = document.getElementById("click-sfx");
-const bgMusic = document.getElementById("background-music");
-
-// Build ladder
+// Build money ladder
 function renderLadder() {
   ladderEl.innerHTML = "";
   prizeAmounts.forEach((amt, idx) => {
@@ -57,26 +60,27 @@ function renderLadder() {
 startBtn.onclick = () => {
   startScreen.classList.add("hidden");
   gameScreen.classList.remove("hidden");
-  bgMusic.play();
   resetLifelines();
   current = 0;
+  bgMusic.play();
   renderLadder();
   loadQuestion();
 };
 
 // Play again
-playAgain.onclick = () => {
+playAgainBtn.onclick = () => {
   overScreen.classList.add("hidden");
   startScreen.classList.remove("hidden");
   resetLifelines();
-  bgMusic.currentTime = 0; bgMusic.play();
+  bgMusic.currentTime = 0;
+  bgMusic.play();
 };
 
+// Reset lifelines & answers
 function resetLifelines() {
   usedFifty = usedAudience = usedPhone = false;
   ["fifty","audience","phone"].forEach(id => {
-    const btn = document.getElementById(id);
-    btn.disabled = false;
+    document.getElementById(id).disabled = false;
   });
   Array.from(answersEl.children).forEach(li => {
     const btn = li.querySelector("button");
@@ -85,7 +89,7 @@ function resetLifelines() {
   statusEl.textContent = "";
 }
 
-// Load next question or win
+// Load question or win
 function loadQuestion() {
   if (current >= questions.length) return winGame();
 
@@ -95,7 +99,7 @@ function loadQuestion() {
   clearInterval(timerId);
   timerId = setInterval(() => {
     timeLeft--;
-    timerEl.textContent = timeLeft;
+    timerEl.textContent = timeLeft > 0 ? timeLeft : 0;
     if (timeLeft <= 0) gameOver();
   }, 1000);
 
@@ -113,7 +117,7 @@ function loadQuestion() {
   });
 }
 
-// Answer check
+// Answer handler
 function checkAnswer(i) {
   clickSfx.play();
   if (isGameOver) return;
@@ -124,26 +128,24 @@ function checkAnswer(i) {
     if (current === questions.length) winGame();
     else setTimeout(loadQuestion, 500);
   } else {
-    wrongAnswer();
+    gameOver();
   }
 }
 
-function wrongAnswer() {
+// Game over
+function gameOver() {
   isGameOver = true;
   clearInterval(timerId);
   bgMusic.pause();
   gameScreen.classList.add("hidden");
   overScreen.classList.remove("hidden");
   overTitle.textContent = "Game Over";
-  finalPrizeEl.textContent = `You won: $${prizeAmounts[current - 1] || 0}`;
+  finalPrizeEl.textContent = `You won: $${prizeAmounts[current - 1]||0}`;
 }
 
+// Win game
 function winGame() {
-  isGameOver = true;
-  clearInterval(timerId);
-  bgMusic.pause();
-  gameScreen.classList.add("hidden");
-  overScreen.classList.remove("hidden");
+  gameOver();
   overTitle.textContent = "🎉 You Won!";
   finalPrizeEl.textContent = `You won: $${prizeAmounts[prizeAmounts.length - 1]}`;
 }
@@ -153,7 +155,7 @@ document.getElementById("fifty").onclick = () => {
   if (usedFifty || isGameOver) return;
   usedFifty = true;
   const corr = questions[current].answer;
-  const wrongs = [0,1,2,3].filter(i => i!==corr).sort(()=>Math.random()-.5).slice(0,2);
+  const wrongs = [0,1,2,3].filter(i=>i!==corr).sort(()=>Math.random()-0.5).slice(0,2);
   wrongs.forEach(i => answersEl.children[i].querySelector("button").style.visibility="hidden");
   document.getElementById("fifty").disabled = true;
 };
@@ -162,10 +164,7 @@ document.getElementById("audience").onclick = () => {
   if (usedAudience || isGameOver) return;
   usedAudience = true;
   const corr = questions[current].answer;
-  const poll = questions[current].choices.map((c,i) => {
-    const base = i===corr?60:10;
-    return `${c}: ${base + Math.floor(Math.random()*30)}%`;
-  });
+  const poll = questions[current].choices.map((c,i)=>`${c}: ${i===corr?60:10 + Math.floor(Math.random()*30)}%`);
   statusEl.textContent = "Audience: " + poll.join(" | ");
   document.getElementById("audience").disabled = true;
 };
