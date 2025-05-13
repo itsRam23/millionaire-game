@@ -1,4 +1,4 @@
-// —––––– 1) QUESTIONS & PRIZES –––––—
+// —— 1) QUESTIONS & PRIZES —— 
 const questions = [
   {
     q: "Which philosopher is known for the theory of the 'categorical imperative'?",
@@ -20,47 +20,50 @@ const questions = [
     choices: ["Marie Curie", "Lise Meitner", "Dorothy Hodgkin", "Rosalind Franklin"],
     answer: 0
   }
-  // add more questions as desired…
 ];
+const prizeAmounts = [100, 200, 300, 500];
 
-const prizeAmounts = [
-  100, 200, 300, 500, 1000,
-  2000, 4000, 8000, 16000, 32000,
-  64000, 125000, 250000, 500000, 1000000
-];
-
-// —––––– 2) STATE & DOM REFS –––––—
-let current = 0, gameOver = false;
+// —— 2) STATE & REFS —— 
+let current = 0, gameOver = false, timerId;
 
 const startScreen  = document.getElementById("start-screen");
 const main         = document.getElementById("main");
 const endScreen    = document.getElementById("end-screen");
 const startBtn     = document.getElementById("start-btn");
 const restartBtn   = document.getElementById("restart-btn");
+
 const questionEl   = document.getElementById("question");
 const answersEl    = document.getElementById("answers");
 const statusEl     = document.getElementById("status");
+const timerEl      = document.getElementById("timer");
+
 const fiftyBtn     = document.getElementById("fifty");
 const audienceBtn  = document.getElementById("audience");
 const phoneBtn     = document.getElementById("phone");
+
 const ladderList   = document.getElementById("prize-list");
 const endTitle     = document.getElementById("end-title");
 const finalPrizeEl = document.getElementById("final-prize");
 
-// —––––– 3) BUILD MONEY LADDER –––––—
+const clickSound   = document.getElementById("click-sound");
+const correctSound = document.getElementById("correct-sound");
+const wrongSound   = document.getElementById("wrong-sound");
+
+// —— 3) BUILD LADDER —— 
 function buildLadder() {
   ladderList.innerHTML = "";
   prizeAmounts.slice().reverse().forEach((amt, idx) => {
     const realIdx = prizeAmounts.length - 1 - idx;
     const li = document.createElement("li");
     li.id = `ladder-${realIdx}`;
-    li.innerHTML = `<span>Q${realIdx+1}</span><span>$${amt}</span>`;
+    li.innerHTML = `<span>Q${realIdx + 1}</span><span>$${amt}</span>`;
     ladderList.appendChild(li);
   });
 }
 
-// —––––– 4) START & RESTART –––––—
+// —— 4) START & RESTART —— 
 startBtn.onclick = () => {
+  clickSound.play();
   startScreen.classList.add("hidden");
   endScreen.classList.add("hidden");
   main.classList.remove("hidden");
@@ -69,20 +72,24 @@ startBtn.onclick = () => {
 };
 
 restartBtn.onclick = () => {
+  clickSound.play();
   endScreen.classList.add("hidden");
-  startScreen.classList.remove("hidden");
+  main.classList.remove("hidden");
+  resetGame();
+  renderQuestion();
 };
 
-// —––––– 5) RESET GAME –––––—
+// —— 5) RESET —— 
 function resetGame() {
   current = 0;
   gameOver = false;
+  clearInterval(timerId);
   statusEl.textContent = "";
   enableLifelines();
   highlightLadder();
 }
 
-// —––––– 6) RENDER QUESTION –––––—
+// —— 6) RENDER —— 
 function renderQuestion() {
   if (current >= questions.length) {
     return endGame(true);
@@ -99,35 +106,62 @@ function renderQuestion() {
     li.appendChild(btn);
     answersEl.appendChild(li);
   });
+
+  startTimer(15);
 }
 
-// —––––– 7) CHECK ANSWER –––––—
+// —— 7) TIMER —— 
+function startTimer(seconds) {
+  clearInterval(timerId);
+  timerEl.textContent = seconds;
+  let timeLeft = seconds;
+  timerId = setInterval(() => {
+    timeLeft--;
+    timerEl.textContent = timeLeft;
+    if (timeLeft <= 0) {
+      clearInterval(timerId);
+      endGame(false);
+    }
+  }, 1000);
+}
+
+// —— 8) CHECK —— 
 function checkAnswer(i) {
   if (gameOver) return;
+  clickSound.play();
+  clearInterval(timerId);
+
   if (i === questions[current].answer) {
+    correctSound.play();
+    if (current === questions.length - 1) {
+      return endGame(true);
+    }
     current++;
-    renderQuestion();
+    setTimeout(renderQuestion, 500);
   } else {
+    wrongSound.play();
     endGame(false);
   }
 }
 
-// —––––– 8) END GAME –––––—
+// —— 9) END GAME —— 
 function endGame(won) {
   gameOver = true;
+  clearInterval(timerId);
   main.classList.add("hidden");
   endScreen.classList.remove("hidden");
+
   endTitle.textContent = won ? "You Won! 🎉" : "Game Over!";
   const prize = won
-    ? prizeAmounts[current-1] || 0
+    ? prizeAmounts[current]
     : current > 0
-      ? prizeAmounts[current-1]
+      ? prizeAmounts[current - 1]
       : 0;
   finalPrizeEl.textContent = `You won $${prize}`;
   disableLifelines();
 }
 
-// —––––– 9) HIGHLIGHT LADDER –––––—
+// —— 10) LADDER HIGHLIGHT —— 
 function highlightLadder() {
   document.querySelectorAll(".ladder li").forEach(li => li.classList.remove("current"));
   if (current < prizeAmounts.length) {
@@ -135,7 +169,7 @@ function highlightLadder() {
   }
 }
 
-// —––––– 10) LIFELINES –––––—
+// —— 11) LIFELINES —— 
 fiftyBtn.onclick = () => {
   if (gameOver || fiftyBtn.disabled) return;
   const correct = questions[current].answer;
@@ -162,7 +196,7 @@ phoneBtn.onclick = () => {
   phoneBtn.disabled = true;
 };
 
-// —––––– 11) ENABLE/DISABLE LIFELINES –––––—
+// —— 12) ENABLE / DISABLE LIFELINES —— 
 function disableLifelines() {
   [fiftyBtn, audienceBtn, phoneBtn].forEach(b => b.disabled = true);
 }
@@ -170,5 +204,5 @@ function enableLifelines() {
   [fiftyBtn, audienceBtn, phoneBtn].forEach(b => b.disabled = false);
 }
 
-// —––––– INIT –––––—
+// —— INIT —— 
 buildLadder();
