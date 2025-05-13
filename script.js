@@ -1,5 +1,4 @@
 document.addEventListener("DOMContentLoaded", () => {
-  // Element references
   const startButton      = document.getElementById("start-button");
   const playAgainBtn     = document.getElementById("play-again");
   const startScreen      = document.getElementById("start-screen");
@@ -15,7 +14,6 @@ document.addEventListener("DOMContentLoaded", () => {
   const resultMessage    = document.getElementById("game-over-title");
   const finalPrizeEl     = document.getElementById("final-prize");
 
-  // 15 questions
   const questions = [
     { q:"What is the capital of France?",        a:["Paris","London","Berlin","Rome"],        c:0 },
     { q:"What is the largest ocean on Earth?",    a:["Atlantic","Indian","Arctic","Pacific"],   c:3 },
@@ -34,7 +32,6 @@ document.addEventListener("DOMContentLoaded", () => {
     { q:"What is 12 × 12?",                       a:["124","144","132","112"],                  c:1 }
   ];
 
-  // Matching 15‑level money ladder, index 0 → $100, ... → index 14 → $1,000,000
   const moneyLadder = [
     "$100", "$200", "$300", "$500", "$1,000",
     "$2,000", "$4,000", "$8,000", "$16,000", "$32,000",
@@ -54,6 +51,7 @@ document.addEventListener("DOMContentLoaded", () => {
       [arr[i], arr[j]] = [arr[j], arr[i]];
     }
   }
+
   function startGame() {
     shuffleArray(questions);
     currentIndex = 0;
@@ -124,7 +122,6 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   }
 
-  // ——— LIFELINES ———
   fiftyBtn.onclick = () => {
     if (usedFifty) return;
     usedFifty = true;
@@ -138,18 +135,21 @@ document.addEventListener("DOMContentLoaded", () => {
       btn.textContent = "";
     });
   };
+
   audienceBtn.onclick = () => {
     if (usedAudience) return;
     usedAudience = true;
     updateLifelinesUI();
     alert("Audience suggests: " + questions[currentIndex].a[questions[currentIndex].c]);
   };
+
   phoneBtn.onclick = () => {
     if (usedPhone) return;
     usedPhone = true;
     updateLifelinesUI();
     alert("Phone a Friend: " + questions[currentIndex].a[questions[currentIndex].c]);
   };
+
   function updateLifelinesUI() {
     [fiftyBtn, audienceBtn, phoneBtn].forEach((btn, i) => {
       const used = [usedFifty, usedAudience, usedPhone][i];
@@ -158,7 +158,6 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   }
 
-  // ——— MONEY LADDER UI ———
   function updateMoneyLadder() {
     moneyLadderEl.innerHTML = "";
     moneyLadder.forEach((amt, idx) => {
