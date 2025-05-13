@@ -1,4 +1,4 @@
-// —–– 1) QUESTIONS & PRIZES —––
+// —––––– 1) QUESTIONS & PRIZES –––––—
 const questions = [
   {
     q: "Which philosopher is known for the theory of the 'categorical imperative'?",
@@ -19,8 +19,8 @@ const questions = [
     q: "Who was the first woman to win a Nobel Prize?",
     choices: ["Marie Curie", "Lise Meitner", "Dorothy Hodgkin", "Rosalind Franklin"],
     answer: 0
-  },
-  // add more if you like...
+  }
+  // add more questions as desired…
 ];
 
 const prizeAmounts = [
@@ -29,42 +29,37 @@ const prizeAmounts = [
   64000, 125000, 250000, 500000, 1000000
 ];
 
-// —–– 2) STATE & DOM REFS —––
-let current = 0,
-    gameOver = false;
+// —––––– 2) STATE & DOM REFS –––––—
+let current = 0, gameOver = false;
 
-const startScreen = document.getElementById("start-screen");
-const main        = document.getElementById("main");
-const endScreen   = document.getElementById("end-screen");
+const startScreen  = document.getElementById("start-screen");
+const main         = document.getElementById("main");
+const endScreen    = document.getElementById("end-screen");
+const startBtn     = document.getElementById("start-btn");
+const restartBtn   = document.getElementById("restart-btn");
+const questionEl   = document.getElementById("question");
+const answersEl    = document.getElementById("answers");
+const statusEl     = document.getElementById("status");
+const fiftyBtn     = document.getElementById("fifty");
+const audienceBtn  = document.getElementById("audience");
+const phoneBtn     = document.getElementById("phone");
+const ladderList   = document.getElementById("prize-list");
+const endTitle     = document.getElementById("end-title");
+const finalPrizeEl = document.getElementById("final-prize");
 
-const startBtn    = document.getElementById("start-btn");
-const restartBtn  = document.getElementById("restart-btn");
-
-const questionEl  = document.getElementById("question");
-const answersEl   = document.getElementById("answers");
-const statusEl    = document.getElementById("status");
-
-const fiftyBtn    = document.getElementById("fifty");
-const audienceBtn = document.getElementById("audience");
-const phoneBtn    = document.getElementById("phone");
-
-const ladderList  = document.getElementById("prize-list");
-const finalPrize  = document.getElementById("final-prize");
-const endTitle    = document.getElementById("end-title");
-
-// —–– 3) BUILD MONEY LADDER —––
+// —––––– 3) BUILD MONEY LADDER –––––—
 function buildLadder() {
   ladderList.innerHTML = "";
-  prizeAmounts.slice().reverse().forEach((amt, i) => {
-    const idx = prizeAmounts.length - 1 - i;
+  prizeAmounts.slice().reverse().forEach((amt, idx) => {
+    const realIdx = prizeAmounts.length - 1 - idx;
     const li = document.createElement("li");
-    li.id = `ladder-${idx}`;
-    li.innerHTML = `<span>Q${idx+1}</span><span>$${amt}</span>`;
+    li.id = `ladder-${realIdx}`;
+    li.innerHTML = `<span>Q${realIdx+1}</span><span>$${amt}</span>`;
     ladderList.appendChild(li);
   });
 }
 
-// —–– 4) START & RESTART —––
+// —––––– 4) START & RESTART –––––—
 startBtn.onclick = () => {
   startScreen.classList.add("hidden");
   endScreen.classList.add("hidden");
@@ -75,12 +70,10 @@ startBtn.onclick = () => {
 
 restartBtn.onclick = () => {
   endScreen.classList.add("hidden");
-  main.classList.remove("hidden");
-  resetGame();
-  renderQuestion();
+  startScreen.classList.remove("hidden");
 };
 
-// —–– 5) RESET GAME —––
+// —––––– 5) RESET GAME –––––—
 function resetGame() {
   current = 0;
   gameOver = false;
@@ -89,13 +82,12 @@ function resetGame() {
   highlightLadder();
 }
 
-// —–– 6) RENDER QUESTION —––
+// —––––– 6) RENDER QUESTION –––––—
 function renderQuestion() {
   if (current >= questions.length) {
     return endGame(true);
   }
   highlightLadder();
-
   const { q, choices } = questions[current];
   questionEl.textContent = q;
   answersEl.innerHTML = "";
@@ -109,10 +101,9 @@ function renderQuestion() {
   });
 }
 
-// —–– 7) CHECK ANSWER —––
+// —––––– 7) CHECK ANSWER –––––—
 function checkAnswer(i) {
   if (gameOver) return;
-
   if (i === questions[current].answer) {
     current++;
     renderQuestion();
@@ -121,23 +112,22 @@ function checkAnswer(i) {
   }
 }
 
-// —–– 8) END GAME —––
+// —––––– 8) END GAME –––––—
 function endGame(won) {
   gameOver = true;
   main.classList.add("hidden");
   endScreen.classList.remove("hidden");
-
-  if (won) {
-    endTitle.textContent = "You Won! 🎉";
-    finalPrize.textContent = `You’ve won $${prizeAmounts[current-1] || 0}`;
-  } else {
-    endTitle.textContent = "Game Over!";
-    finalPrize.textContent = `You won $${current>0 ? prizeAmounts[current-1] : 0}`;
-  }
+  endTitle.textContent = won ? "You Won! 🎉" : "Game Over!";
+  const prize = won
+    ? prizeAmounts[current-1] || 0
+    : current > 0
+      ? prizeAmounts[current-1]
+      : 0;
+  finalPrizeEl.textContent = `You won $${prize}`;
   disableLifelines();
 }
 
-// —–– 9) MONEY LADDER HIGHLIGHT —––
+// —––––– 9) HIGHLIGHT LADDER –––––—
 function highlightLadder() {
   document.querySelectorAll(".ladder li").forEach(li => li.classList.remove("current"));
   if (current < prizeAmounts.length) {
@@ -145,7 +135,7 @@ function highlightLadder() {
   }
 }
 
-// —–– 10) LIFELINES —––
+// —––––– 10) LIFELINES –––––—
 fiftyBtn.onclick = () => {
   if (gameOver || fiftyBtn.disabled) return;
   const correct = questions[current].answer;
@@ -167,12 +157,12 @@ audienceBtn.onclick = () => {
 
 phoneBtn.onclick = () => {
   if (gameOver || phoneBtn.disabled) return;
-  const correctText = questions[current].choices[questions[current].answer];
-  statusEl.textContent = `Friend says: "I think it's '${correctText}'."`;
+  const correct = questions[current].choices[questions[current].answer];
+  statusEl.textContent = `Friend says: "I think it's '${correct}'."`;
   phoneBtn.disabled = true;
 };
 
-// —–– 11) ENABLE / DISABLE LIFELINES —––
+// —––––– 11) ENABLE/DISABLE LIFELINES –––––—
 function disableLifelines() {
   [fiftyBtn, audienceBtn, phoneBtn].forEach(b => b.disabled = true);
 }
@@ -180,5 +170,5 @@ function enableLifelines() {
   [fiftyBtn, audienceBtn, phoneBtn].forEach(b => b.disabled = false);
 }
 
-// —–– INITIAL SETUP —––
+// —––––– INIT –––––—
 buildLadder();
