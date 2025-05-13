@@ -1,242 +1,179 @@
 const prizeAmounts = [
-  100, 200, 300, 500, 1000,
-  2000, 4000, 8000, 16000, 32000,
-  64000, 125000, 250000, 500000, 1000000
+  100,200,300,500,1000,
+  2000,4000,8000,16000,32000,
+  64000,125000,250000,500000,1000000
 ];
 
 const questions = [
-  {
-    q: "Which philosopher is known for the theory of the 'categorical imperative'?",
-    choices: ["Friedrich Nietzsche", "Immanuel Kant", "Jean-Paul Sartre", "David Hume"],
-    answer: 1
-  },
-  {
-    q: "In which year did the Chernobyl disaster occur?",
-    choices: ["1979", "1982", "1986", "1990"],
-    answer: 2
-  },
-  {
-    q: "What is the term used to describe a market structure where a few large firms dominate?",
-    choices: ["Monopoly", "Oligopoly", "Perfect competition", "Monopolistic competition"],
-    answer: 1
-  },
-  {
-    q: "Which chemical element has the highest melting point?",
-    choices: ["Tungsten", "Carbon", "Iron", "Platinum"],
-    answer: 0
-  },
-  {
-    q: "Who was the first woman to win a Nobel Prize?",
-    choices: ["Marie Curie", "Dorothy Hodgkin", "Rosalind Franklin", "Lise Meitner"],
-    answer: 0
-  },
-  {
-    q: "In which battle did Napoleon suffer his final defeat?",
-    choices: ["Austerlitz", "Leipzig", "Waterloo", "Trafalgar"],
-    answer: 2
-  },
-  {
-    q: "Capital of Kazakhstan?",
-    choices: ["Almaty", "Astana", "Tashkent", "Bishkek"],
-    answer: 1
-  },
-  {
-    q: "Who introduced 'survival of the fittest'?",
-    choices: ["Darwin", "Wallace", "Lamarck", "Mendel"],
-    answer: 0
-  },
-  {
-    q: "Second most spoken language in the world?",
-    choices: ["English", "Mandarin", "Hindi", "Spanish"],
-    answer: 3
-  },
-  {
-    q: "When did USA land on the moon?",
-    choices: ["1965", "1969", "1972", "1959"],
-    answer: 1
-  },
-  {
-    q: "Who developed general relativity?",
-    choices: ["Einstein", "Newton", "Planck", "Bohr"],
-    answer: 0
-  },
-  {
-    q: "What country was formerly Ceylon?",
-    choices: ["Sri Lanka", "Thailand", "Myanmar", "Malawi"],
-    answer: 0
-  },
-  {
-    q: "Where is the Great Barrier Reef?",
-    choices: ["Australia", "New Zealand", "South Africa", "Indonesia"],
-    answer: 0
-  },
-  {
-    q: "What is the longest river?",
-    choices: ["Amazon", "Nile", "Yangtze", "Mississippi"],
-    answer: 1
-  },
-  {
-    q: "Hardest natural substance?",
-    choices: ["Gold", "Diamond", "Iron", "Graphene"],
-    answer: 1
-  }
+  { q:"Which philosopher is known for the theory of the 'categorical imperative'?", choices:["Friedrich Nietzsche","Immanuel Kant","Jean-Paul Sartre","David Hume"], answer:1 },
+  { q:"In which year did the Chernobyl disaster occur?", choices:["1979","1982","1986","1990"], answer:2 },
+  { q:"What is the term used to describe a market structure where a few large firms dominate?", choices:["Monopoly","Oligopoly","Perfect competition","Monopolistic competition"], answer:1 },
+  { q:"Which chemical element has the highest melting point?", choices:["Tungsten","Carbon","Iron","Platinum"], answer:0 },
+  { q:"Who was the first woman to win a Nobel Prize?", choices:["Marie Curie","Dorothy Hodgkin","Rosalind Franklin","Lise Meitner"], answer:0 },
+  { q:"In which battle did Napoleon suffer his final defeat?", choices:["Austerlitz","Leipzig","Waterloo","Trafalgar"], answer:2 },
+  { q:"What is the capital of Kazakhstan?", choices:["Almaty","Astana","Tashkent","Bishkek"], answer:1 },
+  { q:"Who introduced 'survival of the fittest'?", choices:["Darwin","Wallace","Lamarck","Mendel"], answer:0 },
+  { q:"What is the second most spoken language in the world?", choices:["English","Mandarin","Hindi","Spanish"], answer:3 },
+  { q:"When did the United States land the first man on the moon?", choices:["1965","1969","1972","1959"], answer:1 },
+  { q:"Which physicist developed the theory of general relativity?", choices:["Albert Einstein","Isaac Newton","Max Planck","Niels Bohr"], answer:0 },
+  { q:"Which country was formerly known as Ceylon?", choices:["Sri Lanka","Thailand","Myanmar","Malawi"], answer:0 },
+  { q:"The 'Great Barrier Reef' is located off the coast of which country?", choices:["Australia","New Zealand","South Africa","Indonesia"], answer:0 },
+  { q:"What is the longest river in the world?", choices:["Amazon","Nile","Yangtze","Mississippi"], answer:1 },
+  { q:"Which of the following is the hardest natural substance on Earth?", choices:["Gold","Diamond","Iron","Graphene"], answer:1 }
 ];
 
-let current = 0;
-let timer;
-let timeLeft = 30;
-let isGameOver = false;
-let usedFifty = false;
-let usedAudience = false;
-let usedPhone = false;
+let current = 0, timerId, timeLeft = 30, isGameOver = false;
+let usedFifty = false, usedAudience = false, usedPhone = false;
+
+const startBtn = document.getElementById("start-button");
+const playAgain = document.getElementById("play-again");
+const startScreen = document.getElementById("start-screen");
+const gameScreen = document.getElementById("game-screen");
+const overScreen = document.getElementById("game-over");
 
 const questionEl = document.getElementById("question");
 const answersEl = document.getElementById("answers");
 const statusEl = document.getElementById("status");
 const timerEl = document.getElementById("timer");
-const startBtn = document.getElementById("start-button");
-const gameScreen = document.getElementById("game-screen");
-const startScreen = document.getElementById("start-screen");
-const gameOverScreen = document.getElementById("game-over");
+const ladderEl = document.getElementById("money-ladder");
 const finalPrizeEl = document.getElementById("final-prize");
-const playAgainBtn = document.getElementById("play-again");
-const ladder = document.getElementById("money-ladder");
+const overTitle = document.getElementById("game-over-title");
 
-const clickSFX = document.getElementById("click-sfx");
+const clickSfx = document.getElementById("click-sfx");
 const bgMusic = document.getElementById("background-music");
 
+// Build ladder
+function renderLadder() {
+  ladderEl.innerHTML = "";
+  prizeAmounts.forEach((amt, idx) => {
+    const div = document.createElement("div");
+    div.textContent = `$${amt}`;
+    if (idx === current) div.classList.add("active");
+    ladderEl.prepend(div);
+  });
+}
+
+// Start game
 startBtn.onclick = () => {
   startScreen.classList.add("hidden");
   gameScreen.classList.remove("hidden");
   bgMusic.play();
+  resetLifelines();
+  current = 0;
   renderLadder();
   loadQuestion();
 };
 
-playAgainBtn.onclick = () => {
-  gameOverScreen.classList.add("hidden");
+// Play again
+playAgain.onclick = () => {
+  overScreen.classList.add("hidden");
   startScreen.classList.remove("hidden");
-  current = 0;
-  isGameOver = false;
-  usedFifty = false;
-  usedAudience = false;
-  usedPhone = false;
-  statusEl.textContent = "";
-  Array.from(answersEl.children).forEach((li) => {
+  resetLifelines();
+  bgMusic.currentTime = 0; bgMusic.play();
+};
+
+function resetLifelines() {
+  usedFifty = usedAudience = usedPhone = false;
+  ["fifty","audience","phone"].forEach(id => {
+    const btn = document.getElementById(id);
+    btn.disabled = false;
+  });
+  Array.from(answersEl.children).forEach(li => {
     const btn = li.querySelector("button");
     if (btn) btn.style.visibility = "visible";
   });
-  document.getElementById("fifty").disabled = false;
-  document.getElementById("audience").disabled = false;
-  document.getElementById("phone").disabled = false;
-  bgMusic.play();
-};
-
-function renderLadder() {
-  ladder.innerHTML = '';
-  for (let i = prizeAmounts.length - 1; i >= 0; i--) {
-    const div = document.createElement("div");
-    div.textContent = `$${prizeAmounts[i]}`;
-    if (i === current) div.classList.add("active");
-    ladder.appendChild(div);
-  }
+  statusEl.textContent = "";
 }
 
+// Load next question or win
 function loadQuestion() {
   if (current >= questions.length) return winGame();
 
-  renderLadder();
-  statusEl.textContent = "";
+  isGameOver = false;
   timeLeft = 30;
   timerEl.textContent = timeLeft;
-  startTimer();
+  clearInterval(timerId);
+  timerId = setInterval(() => {
+    timeLeft--;
+    timerEl.textContent = timeLeft;
+    if (timeLeft <= 0) gameOver();
+  }, 1000);
 
-  const q = questions[current];
-  questionEl.textContent = q.q;
+  renderLadder();
+  const { q, choices } = questions[current];
+  questionEl.textContent = q;
   answersEl.innerHTML = "";
-
-  q.choices.forEach((choice, i) => {
+  choices.forEach((c, i) => {
     const li = document.createElement("li");
     const btn = document.createElement("button");
-    btn.textContent = choice;
+    btn.textContent = c;
     btn.onclick = () => checkAnswer(i);
     li.appendChild(btn);
     answersEl.appendChild(li);
   });
 }
 
-function startTimer() {
-  clearInterval(timer);
-  timer = setInterval(() => {
-    timeLeft--;
-    timerEl.textContent = timeLeft;
-    if (timeLeft <= 0) {
-      clearInterval(timer);
-      gameOver();
-    }
-  }, 1000);
-}
-
+// Answer check
 function checkAnswer(i) {
-  clickSFX.play();
+  clickSfx.play();
   if (isGameOver) return;
+  clearInterval(timerId);
 
-  const correct = questions[current].answer;
-  if (i === correct) {
+  if (i === questions[current].answer) {
     current++;
     if (current === questions.length) winGame();
-    else loadQuestion();
+    else setTimeout(loadQuestion, 500);
   } else {
-    gameOver();
+    wrongAnswer();
   }
 }
 
-function gameOver() {
+function wrongAnswer() {
   isGameOver = true;
-  clearInterval(timer);
+  clearInterval(timerId);
   bgMusic.pause();
-  bgMusic.currentTime = 0;
   gameScreen.classList.add("hidden");
-  gameOverScreen.classList.remove("hidden");
+  overScreen.classList.remove("hidden");
+  overTitle.textContent = "Game Over";
   finalPrizeEl.textContent = `You won: $${prizeAmounts[current - 1] || 0}`;
 }
 
 function winGame() {
-  gameOver();
-  document.getElementById("game-over-title").textContent = "🎉 You WON!";
+  isGameOver = true;
+  clearInterval(timerId);
+  bgMusic.pause();
+  gameScreen.classList.add("hidden");
+  overScreen.classList.remove("hidden");
+  overTitle.textContent = "🎉 You Won!";
+  finalPrizeEl.textContent = `You won: $${prizeAmounts[prizeAmounts.length - 1]}`;
 }
 
 // Lifelines
 document.getElementById("fifty").onclick = () => {
-  if (usedFifty) return;
+  if (usedFifty || isGameOver) return;
   usedFifty = true;
-
-  const correct = questions[current].answer;
-  const wrongs = [0, 1, 2, 3].filter(i => i !== correct).sort(() => Math.random() - 0.5).slice(0, 2);
-  wrongs.forEach(i => {
-    answersEl.children[i].querySelector("button").style.visibility = "hidden";
-  });
+  const corr = questions[current].answer;
+  const wrongs = [0,1,2,3].filter(i => i!==corr).sort(()=>Math.random()-.5).slice(0,2);
+  wrongs.forEach(i => answersEl.children[i].querySelector("button").style.visibility="hidden");
   document.getElementById("fifty").disabled = true;
 };
 
 document.getElementById("audience").onclick = () => {
-  if (usedAudience) return;
+  if (usedAudience || isGameOver) return;
   usedAudience = true;
-
-  const correct = questions[current].answer;
-  const results = questions[current].choices.map((choice, i) => {
-    const base = i === correct ? 60 : 10;
-    return `${choice}: ${base + Math.floor(Math.random() * 30)}%`;
+  const corr = questions[current].answer;
+  const poll = questions[current].choices.map((c,i) => {
+    const base = i===corr?60:10;
+    return `${c}: ${base + Math.floor(Math.random()*30)}%`;
   });
-  statusEl.textContent = "Audience: " + results.join(" | ");
+  statusEl.textContent = "Audience: " + poll.join(" | ");
   document.getElementById("audience").disabled = true;
 };
 
 document.getElementById("phone").onclick = () => {
-  if (usedPhone) return;
+  if (usedPhone || isGameOver) return;
   usedPhone = true;
-
-  const correct = questions[current].answer;
-  statusEl.textContent = `Friend: "I'm pretty sure it's '${questions[current].choices[correct]}'"`;
+  const corrTxt = questions[current].choices[questions[current].answer];
+  statusEl.textContent = `Friend: "I think it's '${corrTxt}'."`;
   document.getElementById("phone").disabled = true;
 };
