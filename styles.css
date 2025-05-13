@@ -39,7 +39,7 @@ body, html {
   position: relative; z-index: 1;
 }
 
-/* CARD STYLING */
+/* CARD */
 .card {
   background: rgba(255,255,255,0.1);
   border-radius: 12px;
@@ -86,10 +86,10 @@ body, html {
 }
 
 /* MONEY LADDER */
-.ladder ul { list-style: none; }
+.ladder ul { list-style: none; padding: 0; }
 .ladder li {
-  padding: 0.5rem; margin: 0.25rem 0;
   display: flex; justify-content: space-between;
+  padding: 0.5rem; margin: 0.25rem 0;
   background: rgba(0,0,0,0.2);
   border-radius: 6px;
 }
