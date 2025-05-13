@@ -7,18 +7,25 @@
   <link rel="stylesheet" href="styles.css" />
 </head>
 <body>
-  <div id="start-screen">
+  <div id="start-screen" class="overlay">
     <h1>Who Wants to Be a Millionaire?</h1>
     <button id="start-button">Play Game</button>
   </div>
 
   <div id="game-screen" class="hidden">
+    <!-- Added Title Above Panels -->
+    <div class="game-title">Who Wants to Be a Millionaire?</div>
+
     <div class="main-content">
       <div class="game-panel">
         <div id="timer">30</div>
         <div id="question"></div>
+        <!-- Separator under question -->
+        <div class="separator"></div>
         <ul id="answers"></ul>
 
+        <!-- Separator above lifelines -->
+        <div class="separator"></div>
         <div class="lifelines">
           <button id="fifty">50/50</button>
           <button id="audience">Ask the Audience</button>
@@ -31,19 +38,15 @@
     </div>
   </div>
 
-  <div id="game-over" class="hidden">
+  <div id="game-over" class="overlay hidden">
     <h1 id="game-over-title">Game Over</h1>
     <p id="final-prize">You won: $0</p>
     <button id="play-again">Play Again</button>
   </div>
 
-  <audio id="background-music" loop>
-    <source src="assets/music/bg.mp3" type="audio/mp3" />
-  </audio>
-  <audio id="click-sfx">
-    <source src="assets/sfx/click.mp3" type="audio/mp3" />
-  </audio>
-
+  <!-- Audio and script unchanged -->
+  <audio id="background-music" loop src="assets/music/bg.mp3"></audio>
+  <audio id="click-sfx" src="assets/sfx/click.mp3"></audio>
   <script src="script.js"></script>
 </body>
 </html>
