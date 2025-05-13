@@ -4,17 +4,13 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Who Wants to Be a Millionaire</title>
-  <!-- Link to our CSS file -->
   <link rel="stylesheet" href="styles.css" />
 </head>
 <body>
   <div class="game-container">
     <h1>Who Wants to Be a Millionaire?</h1>
 
-    <!-- Where the question text goes -->
     <div id="question"></div>
-
-    <!-- Where answer buttons will appear -->
     <ul id="answers"></ul>
 
     <!-- Lifeline buttons -->
@@ -24,11 +20,13 @@
       <button id="phone">Phone a Friend</button>
     </div>
 
+    <!-- Prize Display -->
+    <div id="prize">Prize: $0</div> <!-- Added this part -->
+
     <!-- Feedback like “Correct!” or “Wrong!” -->
     <div id="status"></div>
   </div>
 
-  <!-- Link to our JavaScript file -->
   <script src="script.js"></script>
 </body>
 </html>
