@@ -1,95 +1,111 @@
-const prizeAmounts = [
-  100,200,300,500,1000,
-  2000,4000,8000,16000,32000,
-  64000,125000,250000,500000,1000000
-];
-
 const questions = [
-  { q:"Which philosopher is known for the theory of the 'categorical imperative'?", choices:["Friedrich Nietzsche","Immanuel Kant","Jean-Paul Sartre","David Hume"], answer:1 },
-  { q:"In which year did the Chernobyl disaster occur?", choices:["1979","1982","1986","1990"], answer:2 },
-  { q:"What is the term used to describe a market structure where a few large firms dominate?", choices:["Monopoly","Oligopoly","Perfect competition","Monopolistic competition"], answer:1 },
-  { q:"Which chemical element has the highest melting point?", choices:["Tungsten","Carbon","Iron","Platinum"], answer:0 },
-  { q:"Who was the first woman to win a Nobel Prize?", choices:["Marie Curie","Dorothy Hodgkin","Rosalind Franklin","Lise Meitner"], answer:0 },
-  { q:"In which battle did Napoleon suffer his final defeat?", choices:["Austerlitz","Leipzig","Waterloo","Trafalgar"], answer:2 },
-  { q:"What is the capital of Kazakhstan?", choices:["Almaty","Astana","Tashkent","Bishkek"], answer:1 },
-  { q:"Who introduced 'survival of the fittest'?", choices:["Darwin","Wallace","Lamarck","Mendel"], answer:0 },
-  { q:"What is the second most spoken language in the world?", choices:["English","Mandarin","Hindi","Spanish"], answer:3 },
-  { q:"When did the United States land the first man on the moon?", choices:["1965","1969","1972","1959"], answer:1 },
-  { q:"Which physicist developed the theory of general relativity?", choices:["Albert Einstein","Isaac Newton","Max Planck","Niels Bohr"], answer:0 },
-  { q:"Which country was formerly known as Ceylon?", choices:["Sri Lanka","Thailand","Myanmar","Malawi"], answer:0 },
-  { q:"The 'Great Barrier Reef' is located off the coast of which country?", choices:["Australia","New Zealand","South Africa","Indonesia"], answer:0 },
-  { q:"What is the longest river in the world?", choices:["Amazon","Nile","Yangtze","Mississippi"], answer:1 },
-  { q:"Which is the hardest natural substance?", choices:["Gold","Diamond","Iron","Graphene"], answer:1 }
+  {
+    question: "What is the capital of France?",
+    answers: ["London", "Berlin", "Paris", "Madrid"],
+    correct: 2,
+  },
+  {
+    question: "Which planet is known as the Red Planet?",
+    answers: ["Earth", "Venus", "Mars", "Jupiter"],
+    correct: 2,
+  },
+  {
+    question: "What is the smallest prime number?",
+    answers: ["1", "2", "3", "5"],
+    correct: 1,
+  },
+  {
+    question: "Who wrote 'Romeo and Juliet'?",
+    answers: ["William Wordsworth", "William Shakespeare", "John Keats", "Jane Austen"],
+    correct: 1,
+  },
+  {
+    question: "What is the boiling point of water?",
+    answers: ["90°C", "100°C", "120°C", "80°C"],
+    correct: 1,
+  }
 ];
 
-let current = 0,
-    timerId,
-    timeLeft = 30,
-    isGameOver = false,
-    usedFifty = false,
-    usedAudience = false,
-    usedPhone = false;
+const moneyLadder = [
+  "$1,000,000",
+  "$500,000",
+  "$250,000",
+  "$125,000",
+  "$64,000",
+  "$32,000",
+  "$16,000",
+  "$8,000",
+  "$4,000",
+  "$2,000",
+  "$1,000",
+  "$500",
+  "$300",
+  "$200",
+  "$100"
+].reverse();
 
-const startBtn       = document.getElementById("start-button");
-const playAgainBtn   = document.getElementById("play-again");
-const startScreen    = document.getElementById("start-screen");
-const gameScreen     = document.getElementById("game-screen");
-const overScreen     = document.getElementById("game-over");
-const questionEl     = document.getElementById("question");
-const answersEl      = document.getElementById("answers");
-const statusEl       = document.getElementById("status");
-const timerEl        = document.getElementById("timer");
-const ladderEl       = document.getElementById("money-ladder");
-const finalPrizeEl   = document.getElementById("final-prize");
-const overTitle      = document.getElementById("game-over-title");
-const clickSfx       = document.getElementById("click-sfx");
-const bgMusic        = document.getElementById("background-music");
+let current = 0;
+let timeLeft = 30;
+let timerId;
+let isGameOver = false;
+let usedFifty = false;
+let usedAudience = false;
+let usedPhone = false;
 
-// Build money ladder
-function renderLadder() {
-  ladderEl.innerHTML = "";
-  prizeAmounts.forEach((amt, idx) => {
-    const div = document.createElement("div");
-    div.textContent = `$${amt}`;
-    if (idx === current) div.classList.add("active");
-    ladderEl.prepend(div);
-  });
-}
+const startScreen = document.getElementById("start-screen");
+const startButton = document.getElementById("start-button");
+const gameScreen = document.getElementById("game-screen");
+const gameOverScreen = document.getElementById("game-over");
+const playAgainBtn = document.getElementById("play-again");
 
-// Start game
-startBtn.onclick = () => {
+const questionEl = document.getElementById("question");
+const answersEl = document.getElementById("answers");
+const timerEl = document.getElementById("timer");
+const statusEl = document.getElementById("status");
+
+const fiftyBtn = document.getElementById("fifty");
+const audienceBtn = document.getElementById("audience");
+const phoneBtn = document.getElementById("phone");
+
+const backgroundMusic = document.getElementById("background-music");
+const clickSFX = document.getElementById("click-sfx");
+
+const moneyLadderEl = document.getElementById("money-ladder");
+const finalPrize = document.getElementById("final-prize");
+
+startButton.onclick = () => {
   startScreen.classList.add("hidden");
   gameScreen.classList.remove("hidden");
-  resetLifelines();
+  backgroundMusic.play();
   current = 0;
-  bgMusic.play();
-  renderLadder();
+  usedFifty = false;
+  usedAudience = false;
+  usedPhone = false;
+  updateLifelineButtons();
   loadQuestion();
+  renderLadder();
 };
 
-// Play again
 playAgainBtn.onclick = () => {
-  overScreen.classList.add("hidden");
-  startScreen.classList.remove("hidden");
-  resetLifelines();
-  bgMusic.currentTime = 0;
-  bgMusic.play();
+  gameOverScreen.classList.add("hidden");
+  gameScreen.classList.remove("hidden");
+  current = 0;
+  usedFifty = false;
+  usedAudience = false;
+  usedPhone = false;
+  updateLifelineButtons();
+  loadQuestion();
+  renderLadder();
+  backgroundMusic.currentTime = 0;
+  backgroundMusic.play();
 };
 
-// Reset lifelines & answers
-function resetLifelines() {
-  usedFifty = usedAudience = usedPhone = false;
-  ["fifty","audience","phone"].forEach(id => {
-    document.getElementById(id).disabled = false;
-  });
-  Array.from(answersEl.children).forEach(li => {
-    const btn = li.querySelector("button");
-    if (btn) btn.style.visibility = "visible";
-  });
-  statusEl.textContent = "";
+function updateLifelineButtons() {
+  fiftyBtn.disabled = usedFifty;
+  audienceBtn.disabled = usedAudience;
+  phoneBtn.disabled = usedPhone;
 }
 
-// Load question or win
 function loadQuestion() {
   if (current >= questions.length) return winGame();
 
@@ -99,80 +115,118 @@ function loadQuestion() {
   clearInterval(timerId);
   timerId = setInterval(() => {
     timeLeft--;
-    timerEl.textContent = timeLeft > 0 ? timeLeft : 0;
-    if (timeLeft <= 0) gameOver();
+    if (timeLeft <= 0) {
+      timerEl.textContent = 0;
+      clearInterval(timerId);
+      gameOver();
+    } else {
+      timerEl.textContent = timeLeft;
+    }
   }, 1000);
 
-  renderLadder();
-  const { q, choices } = questions[current];
-  questionEl.textContent = q;
+  const q = questions[current];
+  questionEl.textContent = q.question;
   answersEl.innerHTML = "";
-  choices.forEach((c, i) => {
-    const li = document.createElement("li");
+
+  q.answers.forEach((ans, index) => {
     const btn = document.createElement("button");
-    btn.textContent = c;
-    btn.onclick = () => checkAnswer(i);
+    btn.textContent = ans;
+    btn.onclick = () => checkAnswer(index);
+    const li = document.createElement("li");
     li.appendChild(btn);
     answersEl.appendChild(li);
   });
+
+  statusEl.textContent = "";
+  renderLadder();
 }
 
-// Answer handler
-function checkAnswer(i) {
-  clickSfx.play();
+function checkAnswer(index) {
   if (isGameOver) return;
-  clearInterval(timerId);
+  clickSFX.play();
+  const correctIndex = questions[current].correct;
 
-  if (i === questions[current].answer) {
+  const allButtons = answersEl.querySelectorAll("button");
+  allButtons.forEach(btn => btn.disabled = true);
+
+  if (index === correctIndex) {
+    statusEl.textContent = "Correct!";
     current++;
-    if (current === questions.length) winGame();
-    else setTimeout(loadQuestion, 500);
+    setTimeout(loadQuestion, 1000);
   } else {
-    gameOver();
+    statusEl.textContent = "Wrong answer!";
+    setTimeout(gameOver, 1000);
   }
 }
 
-// Game over
+function renderLadder() {
+  moneyLadderEl.innerHTML = "";
+  moneyLadder.forEach((amount, index) => {
+    const level = document.createElement("div");
+    level.className = index === current ? "active" : "";
+    level.innerHTML = `<span>Q${index + 1}</span> <span>${amount}</span>`;
+    moneyLadderEl.appendChild(level);
+  });
+}
+
 function gameOver() {
   isGameOver = true;
   clearInterval(timerId);
-  bgMusic.pause();
   gameScreen.classList.add("hidden");
-  overScreen.classList.remove("hidden");
-  overTitle.textContent = "Game Over";
-  finalPrizeEl.textContent = `You won: $${prizeAmounts[current - 1]||0}`;
+  gameOverScreen.classList.remove("hidden");
+  finalPrize.textContent = `You won: ${moneyLadder[current - 1] || "$0"}`;
+  backgroundMusic.pause();
 }
 
-// Win game
 function winGame() {
-  gameOver();
-  overTitle.textContent = "🎉 You Won!";
-  finalPrizeEl.textContent = `You won: $${prizeAmounts[prizeAmounts.length - 1]}`;
+  isGameOver = true;
+  clearInterval(timerId);
+  gameScreen.classList.add("hidden");
+  gameOverScreen.classList.remove("hidden");
+  finalPrize.textContent = `Congratulations! You won the top prize of ${moneyLadder[moneyLadder.length - 1]}!`;
+  backgroundMusic.pause();
 }
 
-// Lifelines
-document.getElementById("fifty").onclick = () => {
-  if (usedFifty || isGameOver) return;
+// Lifeline: 50/50
+fiftyBtn.onclick = () => {
+  if (usedFifty) return;
   usedFifty = true;
-  const corr = questions[current].answer;
-  const wrongs = [0,1,2,3].filter(i=>i!==corr).sort(()=>Math.random()-0.5).slice(0,2);
-  wrongs.forEach(i => answersEl.children[i].querySelector("button").style.visibility="hidden");
-  document.getElementById("fifty").disabled = true;
+  updateLifelineButtons();
+
+  const q = questions[current];
+  const correct = q.correct;
+
+  let remaining = [0, 1, 2, 3].filter(i => i !== correct);
+  remaining.sort(() => Math.random() - 0.5);
+  const toRemove = remaining.slice(0, 2);
+
+  const buttons = answersEl.querySelectorAll("button");
+  toRemove.forEach(i => {
+    buttons[i].disabled = true;
+    buttons[i].textContent = "";
+  });
 };
 
-document.getElementById("audience").onclick = () => {
-  if (usedAudience || isGameOver) return;
+// Lifeline: Audience
+audienceBtn.onclick = () => {
+  if (usedAudience) return;
   usedAudience = true;
-  const corr = questions[current].answer;
-  const poll = questions[current].choices.map((c,i)=>`${c}: ${i===corr?60:10 + Math.floor(Math.random()*30)}%`);
-  statusEl.textContent = "Audience: " + poll.join(" | ");
-  document.getElementById("audience").disabled = true;
+  updateLifelineButtons();
+
+  const correct = questions[current].correct;
+  const buttons = answersEl.querySelectorAll("button");
+
+  buttons[correct].textContent += " 👥";
 };
 
-document.getElementById("phone").onclick = () => {
-  if (usedPhone || isGameOver) return;
+// Lifeline: Phone
+phoneBtn.onclick = () => {
+  if (usedPhone) return;
   usedPhone = true;
-  const corrTxt = questions[current].choices[questions[current].answer];
-  statusEl.textContent = `Friend: "I think it's '${corrTxt}'."`;
-  document.getElementById("phone").disabled = true;
+  updateLifelineButtons();
+
+  const correct = questions[current].correct;
+  const buttons = answersEl.querySelectorAll("button");
+
+  buttons[correct].textContent += " ☎️";
 };
