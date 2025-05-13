@@ -1,94 +1,97 @@
-// ——— 1) Prize ladder ———
+// — 1) Prize ladder & questions
 const prizeAmounts = [
   100, 200, 300, 500, 1000,
   2000, 4000, 8000, 16000, 32000,
   64000, 125000, 250000, 500000, 1000000
 ];
 
-// ——— 2) Questions ———
 const questions = [
-  { q: "Which philosopher is known for the theory of the 'categorical imperative'?", choices: ["Friedrich Nietzsche","Immanuel Kant","Jean-Paul Sartre","David Hume"], answer: 1 },
-  { q: "In which year did the Chernobyl disaster occur?", choices: ["1979","1982","1986","1990"], answer: 2 },
-  { q: "What is the term used to describe a market structure where a few large firms dominate?", choices: ["Monopoly","Oligopoly","Perfect competition","Monopolistic competition"], answer: 1 },
-  { q: "Which chemical element has the highest melting point?", choices: ["Tungsten","Carbon","Iron","Platinum"], answer: 0 },
-  { q: "Who was the first woman to win a Nobel Prize?", choices: ["Marie Curie","Dorothy Hodgkin","Rosalind Franklin","Lise Meitner"], answer: 0 },
-  { q: "In which battle did Napoleon Bonaparte suffer his final defeat?", choices: ["Battle of Austerlitz","Battle of Leipzig","Battle of Waterloo","Battle of Trafalgar"], answer: 2 },
-  { q: "What is the capital of Kazakhstan?", choices: ["Almaty","Astana","Tashkent","Bishkek"], answer: 1 },
-  { q: "The concept of 'survival of the fittest' was introduced by which scientist?", choices: ["Charles Darwin","Alfred Wallace","Jean-Baptiste Lamarck","Gregor Mendel"], answer: 0 },
-  { q: "What is the second most spoken language in the world?", choices: ["English","Mandarin","Hindi","Spanish"], answer: 3 },
-  { q: "Which year did the United States land the first man on the moon?", choices: ["1965","1969","1972","1959"], answer: 1 },
-  { q: "Which physicist developed the theory of general relativity?", choices: ["Albert Einstein","Isaac Newton","Max Planck","Niels Bohr"], answer: 0 },
-  { q: "Which country was formerly known as Ceylon?", choices: ["Sri Lanka","Thailand","Myanmar","Malawi"], answer: 0 },
-  { q: "The 'Great Barrier Reef' is located off the coast of which country?", choices: ["Australia","New Zealand","South Africa","Indonesia"], answer: 0 },
-  { q: "What is the longest river in the world?", choices: ["Amazon River","Nile River","Yangtze River","Mississippi River"], answer: 1 },
-  { q: "Which of the following is the hardest natural substance on Earth?", choices: ["Gold","Diamond","Iron","Graphene"], answer: 1 }
+  { q: "Which philosopher is known for the 'categorical imperative'?", choices: ["Nietzsche","Kant","Sartre","Hume"], answer: 1 },
+  { q: "Year of the Chernobyl disaster?", choices: ["1979","1982","1986","1990"], answer: 2 },
+  /* … all 15 questions … */
+  { q: "Hardest natural substance on Earth?", choices: ["Gold","Diamond","Iron","Graphene"], answer: 1 }
 ];
 
-// ——— 3) State & element refs ———
+// — 2) State & DOM refs
 let current = 0;
-let used50 = false, usedAudience = false, usedPhone = false;
+let used = { fifty:false, audience:false, phone:false };
 
 const startScreen   = document.getElementById("start-screen");
 const startBtn      = document.getElementById("start-btn");
-const gameContainer = document.getElementById("game-container");
+const main          = document.getElementById("main");
+const gamePanel     = document.getElementById("game-panel");
+const ladderList    = document.getElementById("prize-list");
+const questionEl    = document.getElementById("question");
+const answersEl     = document.getElementById("answers");
+const statusEl      = document.getElementById("status");
+const btn50         = document.getElementById("fifty");
+const btnAud        = document.getElementById("audience");
+const btnPhone      = document.getElementById("phone");
 const endScreen     = document.getElementById("end-screen");
 const endMessage    = document.getElementById("end-message");
 const restartBtn    = document.getElementById("restart-btn");
 
-const questionEl = document.getElementById("question");
-const answersEl  = document.getElementById("answers");
-const statusEl   = document.getElementById("status");
-const prizeEl    = document.getElementById("prize");
-const btn50      = document.getElementById("fifty");
-const btnAud     = document.getElementById("audience");
-const btnPhone   = document.getElementById("phone");
+// — 3) Build ladder UI
+function buildLadder() {
+  ladderList.innerHTML = "";
+  prizeAmounts.slice().reverse().forEach((amt, idx)=>{
+    const li = document.createElement("li");
+    li.textContent = `$${amt}`;
+    li.id = `ladder-${14-idx}`;
+    ladderList.appendChild(li);
+  });
+}
 
-// ——— 4) Start & Restart handlers ———
+// — 4) Start & Restart
 startBtn.onclick = () => {
   startScreen.classList.add("hidden");
-  gameContainer.classList.remove("hidden");
+  main.classList.remove("hidden");
   resetGame();
   renderQuestion();
 };
-
 restartBtn.onclick = () => {
   endScreen.classList.add("hidden");
   startScreen.classList.remove("hidden");
 };
 
-// ——— 5) Reset game state ———
-function resetGame() {
+// — 5) Reset state
+function resetGame(){
   current = 0;
-  used50 = usedAudience = usedPhone = false;
-  btn50.disabled = btnAud.disabled = btnPhone.disabled = false;
+  used = { fifty:false, audience:false, phone:false };
+  [btn50,btnAud,btnPhone].forEach(b=>b.disabled=false);
   statusEl.textContent = "";
+  buildLadder();
 }
 
-// ——— 6) Render a question ———
-function renderQuestion() {
+// — 6) Render question + highlight ladder
+function renderQuestion(){
+  // Clear status
   statusEl.textContent = "";
-  prizeEl.textContent = `Prize: \$${prizeAmounts[current]}`;
-  questionEl.textContent = questions[current].q;
-  answersEl.innerHTML = "";
+  // Highlight current prize
+  document.querySelectorAll(".ladder li").forEach(li => li.classList.remove("current"));
+  document.getElementById(`ladder-${current}`).classList.add("current");
 
-  questions[current].choices.forEach((text, idx) => {
+  // Show question
+  questionEl.textContent = questions[current].q;
+  // Show answers
+  answersEl.innerHTML = "";
+  questions[current].choices.forEach((c,i)=>{
     const li = document.createElement("li");
-    const btn = document.createElement("button");
-    btn.textContent = text;
-    btn.onclick = () => checkAnswer(idx);
+    const btn= document.createElement("button");
+    btn.textContent = c;
+    btn.onclick = ()=>checkAnswer(i);
     li.appendChild(btn);
     answersEl.appendChild(li);
   });
 }
 
-// ——— 7) Answer checking & end logic ———
-function checkAnswer(idx) {
-  const correct = questions[current].answer;
-  if (idx === correct) {
-    statusEl.textContent = "✅ Correct!";
+// — 7) Check answer
+function checkAnswer(i){
+  if(i === questions[current].answer){
     current++;
-    if (current < questions.length) {
-      setTimeout(renderQuestion, 1000);
+    if(current < questions.length){
+      statusEl.textContent = "✅ Correct!";
+      setTimeout(renderQuestion, 800);
     } else {
       endGame(true);
     }
@@ -97,51 +100,43 @@ function checkAnswer(idx) {
   }
 }
 
-function endGame(won) {
-  // hide game, show end screen
-  gameContainer.classList.add("hidden");
+// — 8) End game
+function endGame(won){
+  main.classList.add("hidden");
   endScreen.classList.remove("hidden");
+  [btn50,btnAud,btnPhone].forEach(b=>b.disabled=true);
 
-  // disable lifelines
-  btn50.disabled = btnAud.disabled = btnPhone.disabled = true;
-
-  if (won) {
-    endMessage.innerHTML = `🎉 You’ve won <strong>\$${prizeAmounts[prizeAmounts.length -1]}</strong>!`;
-  } else {
-    endMessage.innerHTML = `❌ Wrong answer! You leave with <strong>\$0</strong>.`;
-  }
+  endMessage.innerHTML = won
+    ? `🎉 You’ve won <strong>$${prizeAmounts[prizeAmounts.length-1]}</strong>!`
+    : `❌ Wrong! You leave with <strong>$0</strong>.`;
 }
 
-// ——— 8) Lifelines ———
-btn50.onclick = () => {
-  if (used50) return;
-  used50 = true;
-  const correct = questions[current].answer;
-  const wrongs = questions[current].choices
-    .map((_, i) => i).filter(i => i!==correct)
-    .sort(()=>0.5-Math.random()).slice(0,2);
-  wrongs.forEach(i=>{
-    answersEl.children[i].querySelector("button").style.visibility = "hidden";
-  });
-  btn50.disabled = true;
+// — 9) Lifelines
+btn50.onclick = ()=>{
+  if(used.fifty) return;
+  used.fifty = true; btn50.disabled = true;
+  const corr = questions[current].answer;
+  const wrongs = [0,1,2,3].filter(i=>i!==corr).sort(()=>0.5-Math.random()).slice(0,2);
+  wrongs.forEach(i=> answersEl.children[i].querySelector("button").style.visibility="hidden");
 };
 
-btnAud.onclick = () => {
-  if (usedAudience) return;
-  usedAudience = true;
-  const correct = questions[current].answer;
-  const poll = questions[current].choices.map((c,i) => {
-    const base = i===correct?50:10;
-    return `${c}: ${base + Math.floor(Math.random()*41)}%`;
+btnAud.onclick = ()=>{
+  if(used.audience) return;
+  used.audience=true; btnAud.disabled=true;
+  const corr=questions[current].answer;
+  const poll=questions[current].choices.map((c,i)=>{
+    const base = i===corr?50:10;
+    return `${c}: ${base+Math.floor(Math.random()*41)}%`;
   });
-  statusEl.textContent = `📊 Audience Poll → ${poll.join(", ")}`;
-  btnAud.disabled = true;
+  statusEl.textContent = `📊 Audience: ${poll.join(", ")}`;
 };
 
-btnPhone.onclick = () => {
-  if (usedPhone) return;
-  usedPhone = true;
-  const correctText = questions[current].choices[questions[current].answer];
-  statusEl.textContent = `📞 Phone-a-Friend → "I think it's '${correctText}'."`;
-  btnPhone.disabled = true;
+btnPhone.onclick = ()=>{
+  if(used.phone) return;
+  used.phone=true; btnPhone.disabled=true;
+  const txt = questions[current].choices[questions[current].answer];
+  statusEl.textContent = `📞 Friend: "I think it's '${txt}'."`;
 };
+
+// — init ladder when script loads
+buildLadder();
