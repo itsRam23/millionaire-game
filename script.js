@@ -1,227 +1,200 @@
-const questionEl = document.getElementById("question");
-const answersEl = document.getElementById("answers");
-const lifelineFiftyBtn = document.getElementById("lifeline-fifty");
-const lifelineAudienceBtn = document.getElementById("lifeline-audience");
-const lifelinePhoneBtn = document.getElementById("lifeline-phone");
-const timerEl = document.getElementById("timer");
-const moneyLadderEl = document.getElementById("money-ladder");
-const resultScreen = document.getElementById("result-screen");
-const resultMessage = document.getElementById("result-message");
-const playAgainBtn = document.getElementById("play-again");
-
-let questions = [
-  {
-    question: "What is the capital of France?",
-    answers: ["Paris", "London", "Berlin", "Rome"],
-    correct: 0,
-  },
-  {
-    question: "What is the largest ocean on Earth?",
-    answers: ["Atlantic", "Indian", "Arctic", "Pacific"],
-    correct: 3,
-  },
-  {
-    question: "What planet is known as the Red Planet?",
-    answers: ["Earth", "Mars", "Jupiter", "Venus"],
-    correct: 1,
-  },
-  {
-    question: "Which country invented tea?",
-    answers: ["India", "China", "England", "Japan"],
-    correct: 1,
-  },
-  {
-    question: "What is the boiling point of water?",
-    answers: ["90°C", "100°C", "120°C", "80°C"],
-    correct: 1,
-  },
-  {
-    question: "What gas do plants absorb?",
-    answers: ["Oxygen", "Hydrogen", "Nitrogen", "Carbon Dioxide"],
-    correct: 3,
-  },
-  {
-    question: "Which element has the symbol 'O'?",
-    answers: ["Osmium", "Oxygen", "Oxide", "Oganesson"],
-    correct: 1,
-  },
-  {
-    question: "Who wrote 'Macbeth'?",
-    answers: ["Shakespeare", "Dickens", "Hemingway", "Twain"],
-    correct: 0,
-  },
-  {
-    question: "How many continents are there?",
-    answers: ["5", "6", "7", "8"],
-    correct: 2,
-  },
-  {
-    question: "What is the smallest prime number?",
-    answers: ["0", "1", "2", "3"],
-    correct: 2,
-  },
-  {
-    question: "Who painted the Mona Lisa?",
-    answers: ["Van Gogh", "Michelangelo", "Da Vinci", "Picasso"],
-    correct: 2,
-  },
-  {
-    question: "Which metal is liquid at room temp?",
-    answers: ["Mercury", "Iron", "Gold", "Silver"],
-    correct: 0,
-  },
-  {
-    question: "What’s the hardest natural substance?",
-    answers: ["Steel", "Diamond", "Graphite", "Quartz"],
-    correct: 1,
-  },
-  {
-    question: "Which language has the most speakers?",
-    answers: ["English", "Hindi", "Spanish", "Mandarin"],
-    correct: 3,
-  },
-  {
-    question: "What is 12 x 12?",
-    answers: ["124", "144", "132", "112"],
-    correct: 1,
-  }
+const questions = [
+  { question: "What is the capital of France?", answers: ["London", "Berlin", "Paris", "Madrid"], correct: 2 },
+  { question: "Which planet is known as the Red Planet?", answers: ["Earth", "Venus", "Mars", "Jupiter"], correct: 2 },
+  { question: "What is the smallest prime number?", answers: ["1", "2", "3", "5"], correct: 1 },
+  { question: "Who wrote 'Romeo and Juliet'?", answers: ["William Wordsworth", "William Shakespeare", "John Keats", "Jane Austen"], correct: 1 },
+  { question: "What is the boiling point of water?", answers: ["90°C", "100°C", "120°C", "80°C"], correct: 1 },
+  // TODO: add up to 15 questions here to match moneyLadder length
 ];
 
-let currentQuestionIndex = 0;
+const moneyLadder = [
+  "$1,000,000",
+  "$500,000",
+  "$250,000",
+  "$125,000",
+  "$64,000",
+  "$32,000",
+  "$16,000",
+  "$8,000",
+  "$4,000",
+  "$2,000",
+  "$1,000",
+  "$500",
+  "$300",
+  "$200",
+  "$100"
+].reverse(); // 15 levels
+
+let current = 0;
+let timeLeft = 30;
+let timerId;
+let isGameOver = false;
 let usedFifty = false;
 let usedAudience = false;
 let usedPhone = false;
-let timer;
-let timeLeft = 30;
 
-// Shuffle questions
-function shuffleQuestions() {
-  for (let i = questions.length - 1; i > 0; i--) {
-    const j = Math.floor(Math.random() * (i + 1));
-    [questions[i], questions[j]] = [questions[j], questions[i]];
-  }
-}
+// UI Elements
+const startScreen = document.getElementById("start-screen");
+const startButton = document.getElementById("start-button");
+const gameScreen = document.getElementById("game-screen");
+const gameOverScreen = document.getElementById("game-over");
+const playAgainBtn = document.getElementById("play-again");
+const questionEl = document.getElementById("question");
+const answersEl = document.getElementById("answers");
+const timerEl = document.getElementById("timer");
+const statusEl = document.getElementById("status");
+const fiftyBtn = document.getElementById("fifty");
+const audienceBtn = document.getElementById("audience");
+const phoneBtn = document.getElementById("phone");
+const backgroundMusic = document.getElementById("background-music");
+const clickSFX = document.getElementById("click-sfx");
+const moneyLadderEl = document.getElementById("money-ladder");
+const finalPrize = document.getElementById("final-prize");
 
-function startGame() {
-  shuffleQuestions();
-  currentQuestionIndex = 0;
+// Start Game
+tartButton.onclick = () => {
+  startScreen.classList.add("hidden");
+  gameScreen.classList.remove("hidden");
+  backgroundMusic.play();
+  resetGame();
+};
+
+playAgainBtn.onclick = () => {
+  gameOverScreen.classList.add("hidden");
+  gameScreen.classList.remove("hidden");
+  backgroundMusic.currentTime = 0;
+  backgroundMusic.play();
+  resetGame();
+};
+
+function resetGame() {
+  current = 0;
   usedFifty = false;
   usedAudience = false;
   usedPhone = false;
-  resultScreen.style.display = "none";
-  updateLifelineStyles();
+  updateLifelineButtons();
   loadQuestion();
-  updateMoneyLadder();
+  renderLadder();
+}
+
+function updateLifelineButtons() {
+  fiftyBtn.disabled = usedFifty;
+  audienceBtn.disabled = usedAudience;
+  phoneBtn.disabled = usedPhone;
 }
 
 function loadQuestion() {
-  clearInterval(timer);
+  // Win when you've answered all ladder levels
+  if (current >= moneyLadder.length) return winGame();
+
+  const q = questions[current];
+  // If question undefined, end game
+  if (!q) return gameOver();
+
+  isGameOver = false;
   timeLeft = 30;
-  updateTimerDisplay();
-  timer = setInterval(() => {
+  timerEl.textContent = timeLeft;
+  clearInterval(timerId);
+  timerId = setInterval(() => {
     timeLeft--;
-    updateTimerDisplay();
+    timerEl.textContent = timeLeft;
     if (timeLeft <= 0) {
-      clearInterval(timer);
-      endGame("Time's up! You lost.");
+      clearInterval(timerId);
+      gameOver();
     }
   }, 1000);
 
-  const current = questions[currentQuestionIndex];
-  questionEl.textContent = current.question;
+  questionEl.textContent = q.question;
   answersEl.innerHTML = "";
-
-  current.answers.forEach((answer, index) => {
+  q.answers.forEach((ans, index) => {
+    const btn = document.createElement("button");
+    btn.textContent = ans;
+    btn.onclick = () => checkAnswer(index);
     const li = document.createElement("li");
-    li.textContent = answer;
-    li.onclick = () => selectAnswer(index);
+    li.appendChild(btn);
     answersEl.appendChild(li);
   });
 
-  updateMoneyLadder();
+  statusEl.textContent = "";
+  renderLadder();
 }
 
-function updateTimerDisplay() {
-  timerEl.textContent = `⏱️ ${Math.max(0, timeLeft)}s`;
-}
+function checkAnswer(index) {
+  if (isGameOver) return;
+  clickSFX.play();
 
-function selectAnswer(index) {
-  clearInterval(timer);
-  const correct = questions[currentQuestionIndex].correct;
-  if (index === correct) {
-    currentQuestionIndex++;
-    if (currentQuestionIndex === questions.length) {
-      endGame("🎉 Congratulations! You won the game!");
-    } else {
-      loadQuestion();
-    }
+  const correctIndex = questions[current].correct;
+  const allButtons = answersEl.querySelectorAll("button");
+  allButtons.forEach(btn => btn.disabled = true);
+
+  if (index === correctIndex) {
+    statusEl.textContent = "Correct!";
+    current++;
+    setTimeout(loadQuestion, 1000);
   } else {
-    endGame("❌ Wrong answer! Game over.");
+    statusEl.textContent = "Wrong answer!";
+    setTimeout(gameOver, 1000);
   }
 }
 
-function endGame(message) {
-  resultMessage.textContent = message;
-  resultScreen.style.display = "flex";
+function renderLadder() {
+  moneyLadderEl.innerHTML = "";
+  moneyLadder.forEach((amount, index) => {
+    const level = document.createElement("div");
+    level.className = index === current ? "active" : "";
+    level.innerHTML = `<span>Q${index + 1}</span> <span>${amount}</span>`;
+    moneyLadderEl.appendChild(level);
+  });
 }
 
-playAgainBtn.onclick = () => {
-  usedFifty = false;
-  usedAudience = false;
-  usedPhone = false;
-  startGame();
-};
+function gameOver() {
+  isGameOver = true;
+  clearInterval(timerId);
+  gameScreen.classList.add("hidden");
+  gameOverScreen.classList.remove("hidden");
+  finalPrize.textContent = `You won: ${moneyLadder[current - 1] || "$0"}`;
+  backgroundMusic.pause();
+}
 
-lifelineFiftyBtn.onclick = () => {
+function winGame() {
+  isGameOver = true;
+  clearInterval(timerId);
+  gameScreen.classList.add("hidden");
+  gameOverScreen.classList.remove("hidden");
+  finalPrize.textContent = `Congratulations! You won the top prize of ${moneyLadder[moneyLadder.length - 1]}!`;
+  backgroundMusic.pause();
+}
+
+// Lifelines
+fiftyBtn.onclick = () => {
   if (usedFifty) return;
   usedFifty = true;
-  const current = questions[currentQuestionIndex];
-  const correct = current.correct;
-  const indices = [0, 1, 2, 3].filter(i => i !== correct);
-  shuffleArray(indices);
-  const toRemove = indices.slice(0, 2);
+  updateLifelineButtons();
 
-  Array.from(answersEl.children).forEach((li, idx) => {
-    if (toRemove.includes(idx)) li.style.visibility = "hidden";
+  const correct = questions[current].correct;
+  let wrong = [0,1,2,3].filter(i => i !== correct).sort(() => Math.random() - 0.5).slice(0,2);
+  answersEl.querySelectorAll("button").forEach((btn,i) => {
+    if (wrong.includes(i)) {
+      btn.disabled = true;
+      btn.textContent = "";
+    }
   });
-
-  updateLifelineStyles();
 };
 
-lifelineAudienceBtn.onclick = () => {
+audienceBtn.onclick = () => {
   if (usedAudience) return;
   usedAudience = true;
-  alert("📊 Audience suggests: " + questions[currentQuestionIndex].answers[questions[currentQuestionIndex].correct]);
-  updateLifelineStyles();
+  updateLifelineButtons();
+
+  const correct = questions[current].correct;
+  answersEl.querySelectorAll("button")[correct].textContent += " 👥";
 };
 
-lifelinePhoneBtn.onclick = () => {
+phoneBtn.onclick = () => {
   if (usedPhone) return;
   usedPhone = true;
-  alert("📞 Phone a friend says: " + questions[currentQuestionIndex].answers[questions[currentQuestionIndex].correct]);
-  updateLifelineStyles();
+  updateLifelineButtons();
+
+  const correct = questions[current].correct;
+  answersEl.querySelectorAll("button")[correct].textContent += " ☎️";
 };
-
-function updateLifelineStyles() {
-  lifelineFiftyBtn.style.opacity = usedFifty ? "0.5" : "1";
-  lifelineAudienceBtn.style.opacity = usedAudience ? "0.5" : "1";
-  lifelinePhoneBtn.style.opacity = usedPhone ? "0.5" : "1";
-}
-
-function updateMoneyLadder() {
-  const levels = [...Array(15).keys()].map(i => i + 1).reverse();
-  moneyLadderEl.innerHTML = levels
-    .map(
-      level => `<li class="${15 - currentQuestionIndex === level ? "active" : ""}">Question ${level}</li>`
-    )
-    .join("");
-}
-
-function shuffleArray(array) {
-  for (let i = array.length - 1; i > 0; i--) {
-    const j = Math.floor(Math.random() * (i + 1));
-    [array[i], array[j]] = [array[j], array[i]];
-  }
-}
-
-startGame();
