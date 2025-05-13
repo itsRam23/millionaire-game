@@ -86,11 +86,13 @@ let current = 0;
 let timer;
 let timeLeft = 30;
 let isGameOver = false;
+let usedFifty = false;
+let usedAudience = false;
+let usedPhone = false;
 
 const questionEl = document.getElementById("question");
 const answersEl = document.getElementById("answers");
 const statusEl = document.getElementById("status");
-const prizeEl = document.getElementById("prize");
 const timerEl = document.getElementById("timer");
 const startBtn = document.getElementById("start-button");
 const gameScreen = document.getElementById("game-screen");
@@ -113,11 +115,20 @@ startBtn.onclick = () => {
 
 playAgainBtn.onclick = () => {
   gameOverScreen.classList.add("hidden");
-  gameScreen.classList.remove("hidden");
+  startScreen.classList.remove("hidden");
   current = 0;
   isGameOver = false;
-  renderLadder();
-  loadQuestion();
+  usedFifty = false;
+  usedAudience = false;
+  usedPhone = false;
+  statusEl.textContent = "";
+  Array.from(answersEl.children).forEach((li) => {
+    const btn = li.querySelector("button");
+    if (btn) btn.style.visibility = "visible";
+  });
+  document.getElementById("fifty").disabled = false;
+  document.getElementById("audience").disabled = false;
+  document.getElementById("phone").disabled = false;
   bgMusic.play();
 };
 
@@ -152,9 +163,6 @@ function loadQuestion() {
     li.appendChild(btn);
     answersEl.appendChild(li);
   });
-
-  // Reset lifeline buttons
-  document.querySelectorAll(".lifelines button").forEach(btn => btn.disabled = false);
 }
 
 function startTimer() {
@@ -200,8 +208,11 @@ function winGame() {
 
 // Lifelines
 document.getElementById("fifty").onclick = () => {
+  if (usedFifty) return;
+  usedFifty = true;
+
   const correct = questions[current].answer;
-  const wrongs = [0,1,2,3].filter(i => i !== correct).sort(() => Math.random() - 0.5).slice(0,2);
+  const wrongs = [0, 1, 2, 3].filter(i => i !== correct).sort(() => Math.random() - 0.5).slice(0, 2);
   wrongs.forEach(i => {
     answersEl.children[i].querySelector("button").style.visibility = "hidden";
   });
@@ -209,6 +220,9 @@ document.getElementById("fifty").onclick = () => {
 };
 
 document.getElementById("audience").onclick = () => {
+  if (usedAudience) return;
+  usedAudience = true;
+
   const correct = questions[current].answer;
   const results = questions[current].choices.map((choice, i) => {
     const base = i === correct ? 60 : 10;
@@ -219,6 +233,9 @@ document.getElementById("audience").onclick = () => {
 };
 
 document.getElementById("phone").onclick = () => {
+  if (usedPhone) return;
+  usedPhone = true;
+
   const correct = questions[current].answer;
   statusEl.textContent = `Friend: "I'm pretty sure it's '${questions[current].choices[correct]}'"`;
   document.getElementById("phone").disabled = true;
