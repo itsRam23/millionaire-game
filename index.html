@@ -8,29 +8,24 @@
 </head>
 <body>
 
-  <!-- START / SPLASH SCREEN -->
+  <!-- START SCREEN -->
   <div id="start-screen" class="overlay">
     <h1>Who Wants to Be a Millionaire?</h1>
     <button id="start-btn">Play Game</button>
   </div>
 
-  <!-- MAIN GAME & LADDER -->
+  <!-- MAIN GAME + LADDER -->
   <div id="main" class="hidden">
-    <!-- GAME PANEL -->
     <div id="game-panel" class="card">
-      <div id="question" class="question">Question text</div>
+      <div id="question" class="question"></div>
       <ul id="answers" class="answers"></ul>
-
       <div class="lifelines">
         <button id="fifty">50/50</button>
         <button id="audience">Ask the Audience</button>
         <button id="phone">Phone a Friend</button>
       </div>
-
       <div id="status" class="status"></div>
     </div>
-
-    <!-- MONEY LADDER -->
     <div id="ladder-panel" class="card ladder">
       <ul id="prize-list"></ul>
     </div>
