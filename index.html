@@ -14,20 +14,25 @@
     <button id="start-btn" class="btn">Play Game</button>
   </div>
 
-  <!-- GAME CONTAINER -->
-  <div id="game-container" class="hidden">
-    <div id="question-box" class="card">
+  <!-- MAIN CONTAINER: game + money ladder -->
+  <div id="main" class="hidden">
+    <!-- GAME PANEL -->
+    <div id="game-panel" class="card">
       <div id="question" class="question"></div>
       <ul id="answers" class="answers"></ul>
 
       <div class="lifelines">
         <button id="fifty" class="lifeline-btn">50/50</button>
-        <button id="audience" class="lifeline-btn">Ask the Audience</button>
+        <button id="audience" class="lifeline-btn">Ask Audience</button>
         <button id="phone" class="lifeline-btn">Phone a Friend</button>
       </div>
 
-      <div id="prize" class="prize">Prize: $0</div>
       <div id="status" class="status"></div>
+    </div>
+
+    <!-- MONEY LADDER -->
+    <div id="ladder" class="card ladder">
+      <ul id="prize-list"></ul>
     </div>
   </div>
 
