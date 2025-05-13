@@ -1,93 +1,91 @@
 document.addEventListener("DOMContentLoaded", () => {
   // Element references
-  const startButton = document.getElementById("start-button");
-  const playAgainBtn = document.getElementById("play-again");
+  const startButton      = document.getElementById("start-button");
+  const playAgainBtn     = document.getElementById("play-again");
+  const startScreen      = document.getElementById("start-screen");
+  const gameScreen       = document.getElementById("game-screen");
+  const gameOverScreen   = document.getElementById("game-over");
+  const questionEl       = document.getElementById("question");
+  const answersEl        = document.getElementById("answers");
+  const fiftyBtn         = document.getElementById("fifty");
+  const audienceBtn      = document.getElementById("audience");
+  const phoneBtn         = document.getElementById("phone");
+  const timerEl          = document.getElementById("timer");
+  const moneyLadderEl    = document.getElementById("money-ladder");
+  const resultMessage    = document.getElementById("game-over-title");
+  const finalPrizeEl     = document.getElementById("final-prize");
 
-  const startScreen = document.getElementById("start-screen");
-  const gameScreen = document.getElementById("game-screen");
-  const gameOverScreen = document.getElementById("game-over");
-  const questionEl = document.getElementById("question");
-  const answersEl = document.getElementById("answers");
-  const lifelineFiftyBtn = document.getElementById("fifty");
-  const lifelineAudienceBtn = document.getElementById("audience");
-  const lifelinePhoneBtn = document.getElementById("phone");
-  const timerEl = document.getElementById("timer");
-  const moneyLadderEl = document.getElementById("money-ladder");
-  const resultMessage = document.getElementById("game-over-title");
-  const finalPrize = document.getElementById("final-prize");
-
-  let questions = [
-    { question: "What is the capital of France?", answers: ["Paris", "London", "Berlin", "Rome"], correct: 0 },
-    { question: "What is the largest ocean on Earth?", answers: ["Atlantic", "Indian", "Arctic", "Pacific"], correct: 3 },
-    { question: "What planet is known as the Red Planet?", answers: ["Earth", "Mars", "Jupiter", "Venus"], correct: 1 },
-    { question: "Which country invented tea?", answers: ["India", "China", "England", "Japan"], correct: 1 },
-    { question: "What is the boiling point of water?", answers: ["90°C", "100°C", "120°C", "80°C"], correct: 1 },
-    { question: "What gas do plants absorb?", answers: ["Oxygen", "Hydrogen", "Nitrogen", "Carbon Dioxide"], correct: 3 },
-    { question: "Which element has the symbol 'O'?", answers: ["Osmium", "Oxygen", "Oxide", "Oganesson"], correct: 1 },
-    { question: "Who wrote 'Macbeth'?", answers: ["Shakespeare", "Dickens", "Hemingway", "Twain"], correct: 0 },
-    { question: "How many continents are there?", answers: ["5", "6", "7", "8"], correct: 2 },
-    { question: "What is the smallest prime number?", answers: ["0", "1", "2", "3"], correct: 2 },
-    { question: "Who painted the Mona Lisa?", answers: ["Van Gogh", "Michelangelo", "Da Vinci", "Picasso"], correct: 2 },
-    { question: "Which metal is liquid at room temp?", answers: ["Mercury", "Iron", "Gold", "Silver"], correct: 0 },
-    { question: "What’s the hardest natural substance?", answers: ["Steel", "Diamond", "Graphite", "Quartz"], correct: 1 },
-    { question: "Which language has the most speakers?", answers: ["English", "Hindi", "Spanish", "Mandarin"], correct: 3 },
-    { question: "What is 12 x 12?", answers: ["124", "144", "132", "112"], correct: 1 }
+  // 15 questions
+  const questions = [
+    { q:"What is the capital of France?",        a:["Paris","London","Berlin","Rome"],        c:0 },
+    { q:"What is the largest ocean on Earth?",    a:["Atlantic","Indian","Arctic","Pacific"],   c:3 },
+    { q:"What planet is the Red Planet?",         a:["Earth","Mars","Jupiter","Venus"],         c:1 },
+    { q:"Which country invented tea?",            a:["India","China","England","Japan"],        c:1 },
+    { q:"What is the boiling point of water?",    a:["90°C","100°C","120°C","80°C"],            c:1 },
+    { q:"What gas do plants absorb?",             a:["Oxygen","Hydrogen","Nitrogen","CO₂"],      c:3 },
+    { q:"Which element has symbol 'O'?",          a:["Osmium","Oxygen","Oxide","Oganesson"],     c:1 },
+    { q:"Who wrote 'Macbeth'?",                   a:["Shakespeare","Dickens","Hemingway","Twain"],c:0 },
+    { q:"How many continents are there?",         a:["5","6","7","8"],                          c:2 },
+    { q:"What is the smallest prime number?",     a:["0","1","2","3"],                          c:2 },
+    { q:"Who painted the Mona Lisa?",             a:["Van Gogh","Michelangelo","Da Vinci","Picasso"],c:2 },
+    { q:"Which metal is liquid at room temp?",    a:["Mercury","Iron","Gold","Silver"],         c:0 },
+    { q:"What's the hardest natural substance?",  a:["Steel","Diamond","Graphite","Quartz"],    c:1 },
+    { q:"Which language has the most speakers?",  a:["English","Hindi","Spanish","Mandarin"],   c:3 },
+    { q:"What is 12 × 12?",                       a:["124","144","132","112"],                  c:1 }
   ];
 
-  let currentQuestionIndex = 0;
-  let usedFifty = false;
-  let usedAudience = false;
-  let usedPhone = false;
-  let timer;
-  let timeLeft = 30;
+  // Matching 15‑level money ladder, index 0 → $100, ... → index 14 → $1,000,000
+  const moneyLadder = [
+    "$100", "$200", "$300", "$500", "$1,000",
+    "$2,000", "$4,000", "$8,000", "$16,000", "$32,000",
+    "$64,000", "$125,000", "$250,000", "$500,000", "$1,000,000"
+  ];
 
-  startButton.onclick = startGame;
+  let currentIndex = 0;
+  let timerId, timeLeft = 30;
+  let usedFifty = false, usedAudience = false, usedPhone = false;
+
+  startButton.onclick  = startGame;
   playAgainBtn.onclick = startGame;
 
-  function shuffleArray(array) {
-    for (let i = array.length - 1; i > 0; i--) {
+  function shuffleArray(arr) {
+    for (let i = arr.length - 1; i > 0; i--) {
       const j = Math.floor(Math.random() * (i + 1));
-      [array[i], array[j]] = [array[j], array[i]];
+      [arr[i], arr[j]] = [arr[j], arr[i]];
     }
   }
-
-  function shuffleQuestions() {
-    shuffleArray(questions);
-  }
-
   function startGame() {
-    shuffleQuestions();
-    currentQuestionIndex = 0;
+    shuffleArray(questions);
+    currentIndex = 0;
     usedFifty = usedAudience = usedPhone = false;
+    updateLifelinesUI();
     startScreen.classList.add("hidden");
     gameOverScreen.classList.add("hidden");
     gameScreen.classList.remove("hidden");
-    updateLifelineStyles();
     loadQuestion();
     updateMoneyLadder();
   }
 
   function loadQuestion() {
-    clearInterval(timer);
+    clearInterval(timerId);
     timeLeft = 30;
-    updateTimerDisplay();
-    timer = setInterval(() => {
+    updateTimerUI();
+    timerId = setInterval(() => {
       timeLeft--;
-      updateTimerDisplay();
+      updateTimerUI();
       if (timeLeft <= 0) {
-        clearInterval(timer);
-        endGame("⏰ Time's up!", 0);
+        clearInterval(timerId);
+        endGame(false);
       }
     }, 1000);
 
-    const current = questions[currentQuestionIndex];
-    questionEl.textContent = current.question;
+    const { q, a } = questions[currentIndex];
+    questionEl.textContent = q;
     answersEl.innerHTML = "";
-
-    current.answers.forEach((answer, index) => {
+    a.forEach((ans, idx) => {
       const btn = document.createElement("button");
-      btn.textContent = answer;
-      btn.onclick = () => selectAnswer(index);
+      btn.textContent = ans;
+      btn.onclick = () => selectAnswer(idx);
       const li = document.createElement("li");
       li.appendChild(btn);
       answersEl.appendChild(li);
@@ -96,90 +94,78 @@ document.addEventListener("DOMContentLoaded", () => {
     updateMoneyLadder();
   }
 
-  function updateTimerDisplay() {
+  function updateTimerUI() {
     timerEl.textContent = `⏱️ ${Math.max(0, timeLeft)}s`;
   }
 
-  function selectAnswer(index) {
-    clearInterval(timer);
-    const correct = questions[currentQuestionIndex].correct;
-    if (index === correct) {
-      currentQuestionIndex++;
-      if (currentQuestionIndex === questions.length) {
-        endGame("🎉 You won the game!", 1000000);
-      } else {
-        loadQuestion();
-      }
+  function selectAnswer(idx) {
+    clearInterval(timerId);
+    const correct = questions[currentIndex].c;
+    if (idx === correct) {
+      currentIndex++;
+      if (currentIndex === questions.length) return endGame(true);
+      loadQuestion();
     } else {
-      endGame("❌ Wrong answer!", getCurrentPrize());
+      endGame(false);
     }
   }
 
-  function endGame(message, prize) {
+  function endGame(didWin) {
+    clearInterval(timerId);
     gameScreen.classList.add("hidden");
     gameOverScreen.classList.remove("hidden");
-    resultMessage.textContent = message;
-    finalPrize.textContent = `You won: $${prize.toLocaleString()}`;
+    if (didWin) {
+      resultMessage.textContent = "🎉 You won the top prize!";
+      finalPrizeEl.textContent = moneyLadder[moneyLadder.length - 1];
+    } else {
+      resultMessage.textContent = "❌ Game Over";
+      const prize = currentIndex > 0 ? moneyLadder[currentIndex - 1] : "$0";
+      finalPrizeEl.textContent = prize;
+    }
   }
 
-  function getCurrentPrize() {
-    const money = [
-      100, 200, 300, 500, 1000,
-      2000, 4000, 8000, 16000, 32000,
-      64000, 125000, 250000, 500000, 1000000
-    ];
-    return currentQuestionIndex > 0 ? money[currentQuestionIndex - 1] : 0;
-  }
-
-  lifelineFiftyBtn.onclick = () => {
+  // ——— LIFELINES ———
+  fiftyBtn.onclick = () => {
     if (usedFifty) return;
     usedFifty = true;
-    const current = questions[currentQuestionIndex];
-    const correct = current.correct;
-    const indices = [0, 1, 2, 3].filter(i => i !== correct);
-    shuffleArray(indices);
-    const toRemove = indices.slice(0, 2);
-    const buttons = answersEl.querySelectorAll("button");
-    toRemove.forEach(i => {
-      buttons[i].disabled = true;
-      buttons[i].style.visibility = "hidden";
+    updateLifelinesUI();
+    const correct = questions[currentIndex].c;
+    const wrongs = [0,1,2,3].filter(i => i !== correct);
+    shuffleArray(wrongs);
+    wrongs.slice(0,2).forEach(i => {
+      const btn = answersEl.querySelectorAll("button")[i];
+      btn.disabled = true;
+      btn.textContent = "";
     });
-    updateLifelineStyles();
   };
-
-  lifelineAudienceBtn.onclick = () => {
+  audienceBtn.onclick = () => {
     if (usedAudience) return;
     usedAudience = true;
-    alert("📊 Audience suggests: " + questions[currentQuestionIndex].answers[questions[currentQuestionIndex].correct]);
-    updateLifelineStyles();
+    updateLifelinesUI();
+    alert("Audience suggests: " + questions[currentIndex].a[questions[currentIndex].c]);
   };
-
-  lifelinePhoneBtn.onclick = () => {
+  phoneBtn.onclick = () => {
     if (usedPhone) return;
     usedPhone = true;
-    alert("📞 Friend says: " + questions[currentQuestionIndex].answers[questions[currentQuestionIndex].correct]);
-    updateLifelineStyles();
+    updateLifelinesUI();
+    alert("Phone a Friend: " + questions[currentIndex].a[questions[currentIndex].c]);
   };
-
-  function updateLifelineStyles() {
-    lifelineFiftyBtn.style.opacity = usedFifty ? "0.5" : "1";
-    lifelineAudienceBtn.style.opacity = usedAudience ? "0.5" : "1";
-    lifelinePhoneBtn.style.opacity = usedPhone ? "0.5" : "1";
+  function updateLifelinesUI() {
+    [fiftyBtn, audienceBtn, phoneBtn].forEach((btn, i) => {
+      const used = [usedFifty, usedAudience, usedPhone][i];
+      btn.disabled = used;
+      btn.style.opacity = used ? 0.5 : 1;
+    });
   }
 
+  // ——— MONEY LADDER UI ———
   function updateMoneyLadder() {
-    const levels = [...Array(15).keys()].map(i => i + 1).reverse();
-    moneyLadderEl.innerHTML = levels
-      .map(
-        level => `<div class="${15 - currentQuestionIndex === level ? "active" : ""}">Question ${level}</div>`
-      )
-      .join("");
-  }
-
-  // Optional: autoplay background music
-  const bgMusic = document.getElementById("background-music");
-  if (bgMusic) {
-    bgMusic.volume = 0.5;
-    bgMusic.play().catch(() => {}); // in case autoplay is blocked
+    moneyLadderEl.innerHTML = "";
+    moneyLadder.forEach((amt, idx) => {
+      const lvl = document.createElement("div");
+      if (idx === currentIndex) lvl.classList.add("active");
+      lvl.innerHTML = `<span>Q${idx+1}</span><span>${amt}</span>`;
+      moneyLadderEl.appendChild(lvl);
+    });
   }
 });
