@@ -1,4 +1,9 @@
-// —— 1) QUESTIONS & PRIZES —— 
+const prizeAmounts = [
+  100, 200, 300, 500, 1000,
+  2000, 4000, 8000, 16000, 32000,
+  64000, 125000, 250000, 500000, 1000000
+];
+
 const questions = [
   {
     q: "Which philosopher is known for the theory of the 'categorical imperative'?",
@@ -11,198 +16,210 @@ const questions = [
     answer: 2
   },
   {
-    q: "Which element has the highest melting point?",
-    choices: ["Tungsten", "Iron", "Carbon", "Platinum"],
+    q: "What is the term used to describe a market structure where a few large firms dominate?",
+    choices: ["Monopoly", "Oligopoly", "Perfect competition", "Monopolistic competition"],
+    answer: 1
+  },
+  {
+    q: "Which chemical element has the highest melting point?",
+    choices: ["Tungsten", "Carbon", "Iron", "Platinum"],
     answer: 0
   },
   {
     q: "Who was the first woman to win a Nobel Prize?",
-    choices: ["Marie Curie", "Lise Meitner", "Dorothy Hodgkin", "Rosalind Franklin"],
+    choices: ["Marie Curie", "Dorothy Hodgkin", "Rosalind Franklin", "Lise Meitner"],
     answer: 0
+  },
+  {
+    q: "In which battle did Napoleon suffer his final defeat?",
+    choices: ["Austerlitz", "Leipzig", "Waterloo", "Trafalgar"],
+    answer: 2
+  },
+  {
+    q: "Capital of Kazakhstan?",
+    choices: ["Almaty", "Astana", "Tashkent", "Bishkek"],
+    answer: 1
+  },
+  {
+    q: "Who introduced 'survival of the fittest'?",
+    choices: ["Darwin", "Wallace", "Lamarck", "Mendel"],
+    answer: 0
+  },
+  {
+    q: "Second most spoken language in the world?",
+    choices: ["English", "Mandarin", "Hindi", "Spanish"],
+    answer: 3
+  },
+  {
+    q: "When did USA land on the moon?",
+    choices: ["1965", "1969", "1972", "1959"],
+    answer: 1
+  },
+  {
+    q: "Who developed general relativity?",
+    choices: ["Einstein", "Newton", "Planck", "Bohr"],
+    answer: 0
+  },
+  {
+    q: "What country was formerly Ceylon?",
+    choices: ["Sri Lanka", "Thailand", "Myanmar", "Malawi"],
+    answer: 0
+  },
+  {
+    q: "Where is the Great Barrier Reef?",
+    choices: ["Australia", "New Zealand", "South Africa", "Indonesia"],
+    answer: 0
+  },
+  {
+    q: "What is the longest river?",
+    choices: ["Amazon", "Nile", "Yangtze", "Mississippi"],
+    answer: 1
+  },
+  {
+    q: "Hardest natural substance?",
+    choices: ["Gold", "Diamond", "Iron", "Graphene"],
+    answer: 1
   }
 ];
-const prizeAmounts = [100, 200, 300, 500];
 
-// —— 2) STATE & REFS —— 
-let current = 0, gameOver = false, timerId;
+let current = 0;
+let timer;
+let timeLeft = 30;
+let isGameOver = false;
 
-const startScreen  = document.getElementById("start-screen");
-const main         = document.getElementById("main");
-const endScreen    = document.getElementById("end-screen");
-const startBtn     = document.getElementById("start-btn");
-const restartBtn   = document.getElementById("restart-btn");
-
-const questionEl   = document.getElementById("question");
-const answersEl    = document.getElementById("answers");
-const statusEl     = document.getElementById("status");
-const timerEl      = document.getElementById("timer");
-
-const fiftyBtn     = document.getElementById("fifty");
-const audienceBtn  = document.getElementById("audience");
-const phoneBtn     = document.getElementById("phone");
-
-const ladderList   = document.getElementById("prize-list");
-const endTitle     = document.getElementById("end-title");
+const questionEl = document.getElementById("question");
+const answersEl = document.getElementById("answers");
+const statusEl = document.getElementById("status");
+const prizeEl = document.getElementById("prize");
+const timerEl = document.getElementById("timer");
+const startBtn = document.getElementById("start-button");
+const gameScreen = document.getElementById("game-screen");
+const startScreen = document.getElementById("start-screen");
+const gameOverScreen = document.getElementById("game-over");
 const finalPrizeEl = document.getElementById("final-prize");
+const playAgainBtn = document.getElementById("play-again");
+const ladder = document.getElementById("money-ladder");
 
-const clickSound   = document.getElementById("click-sound");
-const correctSound = document.getElementById("correct-sound");
-const wrongSound   = document.getElementById("wrong-sound");
+const clickSFX = document.getElementById("click-sfx");
+const bgMusic = document.getElementById("background-music");
 
-// —— 3) BUILD LADDER —— 
-function buildLadder() {
-  ladderList.innerHTML = "";
-  prizeAmounts.slice().reverse().forEach((amt, idx) => {
-    const realIdx = prizeAmounts.length - 1 - idx;
-    const li = document.createElement("li");
-    li.id = `ladder-${realIdx}`;
-    li.innerHTML = `<span>Q${realIdx + 1}</span><span>$${amt}</span>`;
-    ladderList.appendChild(li);
-  });
-}
-
-// —— 4) START & RESTART —— 
 startBtn.onclick = () => {
-  clickSound.play();
   startScreen.classList.add("hidden");
-  endScreen.classList.add("hidden");
-  main.classList.remove("hidden");
-  resetGame();
-  renderQuestion();
+  gameScreen.classList.remove("hidden");
+  bgMusic.play();
+  renderLadder();
+  loadQuestion();
 };
 
-restartBtn.onclick = () => {
-  clickSound.play();
-  endScreen.classList.add("hidden");
-  main.classList.remove("hidden");
-  resetGame();
-  renderQuestion();
-};
-
-// —— 5) RESET —— 
-function resetGame() {
+playAgainBtn.onclick = () => {
+  gameOverScreen.classList.add("hidden");
+  gameScreen.classList.remove("hidden");
   current = 0;
-  gameOver = false;
-  clearInterval(timerId);
-  statusEl.textContent = "";
-  enableLifelines();
-  highlightLadder();
+  isGameOver = false;
+  renderLadder();
+  loadQuestion();
+  bgMusic.play();
+};
+
+function renderLadder() {
+  ladder.innerHTML = '';
+  for (let i = prizeAmounts.length - 1; i >= 0; i--) {
+    const div = document.createElement("div");
+    div.textContent = `$${prizeAmounts[i]}`;
+    if (i === current) div.classList.add("active");
+    ladder.appendChild(div);
+  }
 }
 
-// —— 6) RENDER —— 
-function renderQuestion() {
-  if (current >= questions.length) {
-    return endGame(true);
-  }
-  highlightLadder();
-  const { q, choices } = questions[current];
-  questionEl.textContent = q;
+function loadQuestion() {
+  if (current >= questions.length) return winGame();
+
+  renderLadder();
+  statusEl.textContent = "";
+  timeLeft = 30;
+  timerEl.textContent = timeLeft;
+  startTimer();
+
+  const q = questions[current];
+  questionEl.textContent = q.q;
   answersEl.innerHTML = "";
-  choices.forEach((c, i) => {
-    const btn = document.createElement("button");
-    btn.textContent = c;
-    btn.onclick = () => checkAnswer(i);
+
+  q.choices.forEach((choice, i) => {
     const li = document.createElement("li");
+    const btn = document.createElement("button");
+    btn.textContent = choice;
+    btn.onclick = () => checkAnswer(i);
     li.appendChild(btn);
     answersEl.appendChild(li);
   });
 
-  startTimer(15);
+  // Reset lifeline buttons
+  document.querySelectorAll(".lifelines button").forEach(btn => btn.disabled = false);
 }
 
-// —— 7) TIMER —— 
-function startTimer(seconds) {
-  clearInterval(timerId);
-  timerEl.textContent = seconds;
-  let timeLeft = seconds;
-  timerId = setInterval(() => {
+function startTimer() {
+  clearInterval(timer);
+  timer = setInterval(() => {
     timeLeft--;
     timerEl.textContent = timeLeft;
     if (timeLeft <= 0) {
-      clearInterval(timerId);
-      endGame(false);
+      clearInterval(timer);
+      gameOver();
     }
   }, 1000);
 }
 
-// —— 8) CHECK —— 
 function checkAnswer(i) {
-  if (gameOver) return;
-  clickSound.play();
-  clearInterval(timerId);
+  clickSFX.play();
+  if (isGameOver) return;
 
-  if (i === questions[current].answer) {
-    correctSound.play();
-    if (current === questions.length - 1) {
-      return endGame(true);
-    }
+  const correct = questions[current].answer;
+  if (i === correct) {
     current++;
-    setTimeout(renderQuestion, 500);
+    if (current === questions.length) winGame();
+    else loadQuestion();
   } else {
-    wrongSound.play();
-    endGame(false);
+    gameOver();
   }
 }
 
-// —— 9) END GAME —— 
-function endGame(won) {
-  gameOver = true;
-  clearInterval(timerId);
-  main.classList.add("hidden");
-  endScreen.classList.remove("hidden");
-
-  endTitle.textContent = won ? "You Won! 🎉" : "Game Over!";
-  const prize = won
-    ? prizeAmounts[current]
-    : current > 0
-      ? prizeAmounts[current - 1]
-      : 0;
-  finalPrizeEl.textContent = `You won $${prize}`;
-  disableLifelines();
+function gameOver() {
+  isGameOver = true;
+  clearInterval(timer);
+  bgMusic.pause();
+  bgMusic.currentTime = 0;
+  gameScreen.classList.add("hidden");
+  gameOverScreen.classList.remove("hidden");
+  finalPrizeEl.textContent = `You won: $${prizeAmounts[current - 1] || 0}`;
 }
 
-// —— 10) LADDER HIGHLIGHT —— 
-function highlightLadder() {
-  document.querySelectorAll(".ladder li").forEach(li => li.classList.remove("current"));
-  if (current < prizeAmounts.length) {
-    document.getElementById(`ladder-${current}`)?.classList.add("current");
-  }
+function winGame() {
+  gameOver();
+  document.getElementById("game-over-title").textContent = "🎉 You WON!";
 }
 
-// —— 11) LIFELINES —— 
-fiftyBtn.onclick = () => {
-  if (gameOver || fiftyBtn.disabled) return;
+// Lifelines
+document.getElementById("fifty").onclick = () => {
   const correct = questions[current].answer;
-  const wrongs = [0,1,2,3].filter(i => i !== correct).sort(() => 0.5 - Math.random()).slice(0,2);
-  wrongs.forEach(i => answersEl.children[i].querySelector("button").style.visibility = "hidden");
-  fiftyBtn.disabled = true;
-};
-
-audienceBtn.onclick = () => {
-  if (gameOver || audienceBtn.disabled) return;
-  const correct = questions[current].answer;
-  const poll = questions[current].choices.map((c,i) => {
-    const base = i === correct ? 50 : 10;
-    return `${c}: ${base + Math.floor(Math.random()*41)}%`;
+  const wrongs = [0,1,2,3].filter(i => i !== correct).sort(() => Math.random() - 0.5).slice(0,2);
+  wrongs.forEach(i => {
+    answersEl.children[i].querySelector("button").style.visibility = "hidden";
   });
-  statusEl.textContent = `Audience says → ${poll.join(", ")}`;
-  audienceBtn.disabled = true;
+  document.getElementById("fifty").disabled = true;
 };
 
-phoneBtn.onclick = () => {
-  if (gameOver || phoneBtn.disabled) return;
-  const correct = questions[current].choices[questions[current].answer];
-  statusEl.textContent = `Friend says: "I think it's '${correct}'."`;
-  phoneBtn.disabled = true;
+document.getElementById("audience").onclick = () => {
+  const correct = questions[current].answer;
+  const results = questions[current].choices.map((choice, i) => {
+    const base = i === correct ? 60 : 10;
+    return `${choice}: ${base + Math.floor(Math.random() * 30)}%`;
+  });
+  statusEl.textContent = "Audience: " + results.join(" | ");
+  document.getElementById("audience").disabled = true;
 };
 
-// —— 12) ENABLE / DISABLE LIFELINES —— 
-function disableLifelines() {
-  [fiftyBtn, audienceBtn, phoneBtn].forEach(b => b.disabled = true);
-}
-function enableLifelines() {
-  [fiftyBtn, audienceBtn, phoneBtn].forEach(b => b.disabled = false);
-}
-
-// —— INIT —— 
-buildLadder();
+document.getElementById("phone").onclick = () => {
+  const correct = questions[current].answer;
+  statusEl.textContent = `Friend: "I'm pretty sure it's '${questions[current].choices[correct]}'"`;
+  document.getElementById("phone").disabled = true;
+};
