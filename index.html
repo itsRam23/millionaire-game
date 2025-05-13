@@ -2,11 +2,18 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1.0"/>
   <title>Who Wants to Be a Millionaire?</title>
   <link rel="stylesheet" href="styles.css"/>
 </head>
 <body>
+
+  <!-- Background Music -->
+  <audio id="bg-music" src="assets/music/background.mp3" loop autoplay></audio>
+  <!-- Click Sound -->
+  <audio id="click-sound" src="assets/sfx/click.mp3"></audio>
+  <audio id="correct-sound" src="assets/sfx/correct.mp3"></audio>
+  <audio id="wrong-sound" src="assets/sfx/wrong.mp3"></audio>
 
   <!-- START SCREEN -->
   <div id="start-screen" class="overlay">
@@ -17,6 +24,7 @@
   <!-- MAIN GAME + LADDER -->
   <div id="main" class="hidden">
     <div id="game-panel" class="card">
+      <div id="timer" class="timer">15</div>
       <div id="question" class="question"></div>
       <ul id="answers" class="answers"></ul>
       <div class="lifelines">
