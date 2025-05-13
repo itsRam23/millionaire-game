@@ -2,37 +2,44 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Who Wants to Be a Millionaire</title>
-  <link rel="stylesheet" href="styles.css" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Who Wants to Be a Millionaire?</title>
+  <link rel="stylesheet" href="styles.css"/>
 </head>
 <body>
-  <!-- Start Screen -->
+
+  <!-- START / SPLASH SCREEN -->
   <div id="start-screen" class="overlay">
     <h1>Who Wants to Be a Millionaire?</h1>
     <button id="start-btn">Play Game</button>
   </div>
 
-  <!-- Main Game -->
+  <!-- MAIN GAME & LADDER -->
   <div id="main" class="hidden">
-    <div class="game-container">
-      <h1>Who Wants to Be a Millionaire?</h1>
-      <div id="question"></div>
-      <ul id="answers"></ul>
+    <!-- GAME PANEL -->
+    <div id="game-panel" class="card">
+      <div id="question" class="question">Question text</div>
+      <ul id="answers" class="answers"></ul>
+
       <div class="lifelines">
         <button id="fifty">50/50</button>
         <button id="audience">Ask the Audience</button>
         <button id="phone">Phone a Friend</button>
       </div>
-      <div id="prize">Prize: $0</div>
-      <div id="status"></div>
+
+      <div id="status" class="status"></div>
+    </div>
+
+    <!-- MONEY LADDER -->
+    <div id="ladder-panel" class="card ladder">
+      <ul id="prize-list"></ul>
     </div>
   </div>
 
-  <!-- End Screen -->
+  <!-- END SCREEN -->
   <div id="end-screen" class="overlay hidden">
-    <h2>Game Over!</h2>
-    <p id="final-prize"></p>
+    <h2 id="end-title">Game Over!</h2>
+    <p id="final-prize">You won $0</p>
     <button id="restart-btn">Play Again</button>
   </div>
 
