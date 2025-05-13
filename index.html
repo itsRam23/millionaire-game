@@ -2,49 +2,47 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1.0"/>
-  <title>Who Wants to Be a Millionaire?</title>
-  <link rel="stylesheet" href="styles.css"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Who Wants to Be a Millionaire</title>
+  <link rel="stylesheet" href="styles.css" />
 </head>
 <body>
-
-  <!-- Background Music -->
-  <audio id="bg-music" src="assets/music/background.mp3" loop autoplay></audio>
-  <!-- Click Sound -->
-  <audio id="click-sound" src="assets/sfx/click.mp3"></audio>
-  <audio id="correct-sound" src="assets/sfx/correct.mp3"></audio>
-  <audio id="wrong-sound" src="assets/sfx/wrong.mp3"></audio>
-
-  <!-- START SCREEN -->
-  <div id="start-screen" class="overlay">
+  <div id="start-screen">
     <h1>Who Wants to Be a Millionaire?</h1>
-    <button id="start-btn">Play Game</button>
+    <button id="start-button">Play Game</button>
   </div>
 
-  <!-- MAIN GAME + LADDER -->
-  <div id="main" class="hidden">
-    <div id="game-panel" class="card">
-      <div id="timer" class="timer">15</div>
-      <div id="question" class="question"></div>
-      <ul id="answers" class="answers"></ul>
-      <div class="lifelines">
-        <button id="fifty">50/50</button>
-        <button id="audience">Ask the Audience</button>
-        <button id="phone">Phone a Friend</button>
+  <div id="game-screen" class="hidden">
+    <div class="main-content">
+      <div class="game-panel">
+        <div id="timer">30</div>
+        <div id="question"></div>
+        <ul id="answers"></ul>
+
+        <div class="lifelines">
+          <button id="fifty">50/50</button>
+          <button id="audience">Ask the Audience</button>
+          <button id="phone">Phone a Friend</button>
+        </div>
+        <div id="status"></div>
       </div>
-      <div id="status" class="status"></div>
-    </div>
-    <div id="ladder-panel" class="card ladder">
-      <ul id="prize-list"></ul>
+
+      <div class="money-ladder" id="money-ladder"></div>
     </div>
   </div>
 
-  <!-- END SCREEN -->
-  <div id="end-screen" class="overlay hidden">
-    <h2 id="end-title">Game Over!</h2>
-    <p id="final-prize">You won $0</p>
-    <button id="restart-btn">Play Again</button>
+  <div id="game-over" class="hidden">
+    <h1 id="game-over-title">Game Over</h1>
+    <p id="final-prize">You won: $0</p>
+    <button id="play-again">Play Again</button>
   </div>
+
+  <audio id="background-music" loop>
+    <source src="assets/music/bg.mp3" type="audio/mp3" />
+  </audio>
+  <audio id="click-sfx">
+    <source src="assets/sfx/click.mp3" type="audio/mp3" />
+  </audio>
 
   <script src="script.js"></script>
 </body>
