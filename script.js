@@ -1,232 +1,227 @@
-const questions = [
+const questionEl = document.getElementById("question");
+const answersEl = document.getElementById("answers");
+const lifelineFiftyBtn = document.getElementById("lifeline-fifty");
+const lifelineAudienceBtn = document.getElementById("lifeline-audience");
+const lifelinePhoneBtn = document.getElementById("lifeline-phone");
+const timerEl = document.getElementById("timer");
+const moneyLadderEl = document.getElementById("money-ladder");
+const resultScreen = document.getElementById("result-screen");
+const resultMessage = document.getElementById("result-message");
+const playAgainBtn = document.getElementById("play-again");
+
+let questions = [
   {
     question: "What is the capital of France?",
-    answers: ["London", "Berlin", "Paris", "Madrid"],
-    correct: 2,
+    answers: ["Paris", "London", "Berlin", "Rome"],
+    correct: 0,
   },
   {
-    question: "Which planet is known as the Red Planet?",
-    answers: ["Earth", "Venus", "Mars", "Jupiter"],
-    correct: 2,
+    question: "What is the largest ocean on Earth?",
+    answers: ["Atlantic", "Indian", "Arctic", "Pacific"],
+    correct: 3,
   },
   {
-    question: "What is the smallest prime number?",
-    answers: ["1", "2", "3", "5"],
+    question: "What planet is known as the Red Planet?",
+    answers: ["Earth", "Mars", "Jupiter", "Venus"],
     correct: 1,
   },
   {
-    question: "Who wrote 'Romeo and Juliet'?",
-    answers: ["William Wordsworth", "William Shakespeare", "John Keats", "Jane Austen"],
+    question: "Which country invented tea?",
+    answers: ["India", "China", "England", "Japan"],
     correct: 1,
   },
   {
     question: "What is the boiling point of water?",
     answers: ["90°C", "100°C", "120°C", "80°C"],
     correct: 1,
+  },
+  {
+    question: "What gas do plants absorb?",
+    answers: ["Oxygen", "Hydrogen", "Nitrogen", "Carbon Dioxide"],
+    correct: 3,
+  },
+  {
+    question: "Which element has the symbol 'O'?",
+    answers: ["Osmium", "Oxygen", "Oxide", "Oganesson"],
+    correct: 1,
+  },
+  {
+    question: "Who wrote 'Macbeth'?",
+    answers: ["Shakespeare", "Dickens", "Hemingway", "Twain"],
+    correct: 0,
+  },
+  {
+    question: "How many continents are there?",
+    answers: ["5", "6", "7", "8"],
+    correct: 2,
+  },
+  {
+    question: "What is the smallest prime number?",
+    answers: ["0", "1", "2", "3"],
+    correct: 2,
+  },
+  {
+    question: "Who painted the Mona Lisa?",
+    answers: ["Van Gogh", "Michelangelo", "Da Vinci", "Picasso"],
+    correct: 2,
+  },
+  {
+    question: "Which metal is liquid at room temp?",
+    answers: ["Mercury", "Iron", "Gold", "Silver"],
+    correct: 0,
+  },
+  {
+    question: "What’s the hardest natural substance?",
+    answers: ["Steel", "Diamond", "Graphite", "Quartz"],
+    correct: 1,
+  },
+  {
+    question: "Which language has the most speakers?",
+    answers: ["English", "Hindi", "Spanish", "Mandarin"],
+    correct: 3,
+  },
+  {
+    question: "What is 12 x 12?",
+    answers: ["124", "144", "132", "112"],
+    correct: 1,
   }
 ];
 
-const moneyLadder = [
-  "$1,000,000",
-  "$500,000",
-  "$250,000",
-  "$125,000",
-  "$64,000",
-  "$32,000",
-  "$16,000",
-  "$8,000",
-  "$4,000",
-  "$2,000",
-  "$1,000",
-  "$500",
-  "$300",
-  "$200",
-  "$100"
-].reverse();
-
-let current = 0;
-let timeLeft = 30;
-let timerId;
-let isGameOver = false;
+let currentQuestionIndex = 0;
 let usedFifty = false;
 let usedAudience = false;
 let usedPhone = false;
+let timer;
+let timeLeft = 30;
 
-const startScreen = document.getElementById("start-screen");
-const startButton = document.getElementById("start-button");
-const gameScreen = document.getElementById("game-screen");
-const gameOverScreen = document.getElementById("game-over");
-const playAgainBtn = document.getElementById("play-again");
-
-const questionEl = document.getElementById("question");
-const answersEl = document.getElementById("answers");
-const timerEl = document.getElementById("timer");
-const statusEl = document.getElementById("status");
-
-const fiftyBtn = document.getElementById("fifty");
-const audienceBtn = document.getElementById("audience");
-const phoneBtn = document.getElementById("phone");
-
-const backgroundMusic = document.getElementById("background-music");
-const clickSFX = document.getElementById("click-sfx");
-
-const moneyLadderEl = document.getElementById("money-ladder");
-const finalPrize = document.getElementById("final-prize");
-
-startButton.onclick = () => {
-  startScreen.classList.add("hidden");
-  gameScreen.classList.remove("hidden");
-  backgroundMusic.play();
-  current = 0;
-  usedFifty = false;
-  usedAudience = false;
-  usedPhone = false;
-  updateLifelineButtons();
-  loadQuestion();
-  renderLadder();
-};
-
-playAgainBtn.onclick = () => {
-  gameOverScreen.classList.add("hidden");
-  gameScreen.classList.remove("hidden");
-  current = 0;
-  usedFifty = false;
-  usedAudience = false;
-  usedPhone = false;
-  updateLifelineButtons();
-  loadQuestion();
-  renderLadder();
-  backgroundMusic.currentTime = 0;
-  backgroundMusic.play();
-};
-
-function updateLifelineButtons() {
-  fiftyBtn.disabled = usedFifty;
-  audienceBtn.disabled = usedAudience;
-  phoneBtn.disabled = usedPhone;
-}
-
-function loadQuestion() {
-  if (current >= questions.length) return winGame();
-
-  isGameOver = false;
-  timeLeft = 30;
-  timerEl.textContent = timeLeft;
-  clearInterval(timerId);
-  timerId = setInterval(() => {
-    timeLeft--;
-    if (timeLeft <= 0) {
-      timerEl.textContent = 0;
-      clearInterval(timerId);
-      gameOver();
-    } else {
-      timerEl.textContent = timeLeft;
-    }
-  }, 1000);
-
-  const q = questions[current];
-  questionEl.textContent = q.question;
-  answersEl.innerHTML = "";
-
-  q.answers.forEach((ans, index) => {
-    const btn = document.createElement("button");
-    btn.textContent = ans;
-    btn.onclick = () => checkAnswer(index);
-    const li = document.createElement("li");
-    li.appendChild(btn);
-    answersEl.appendChild(li);
-  });
-
-  statusEl.textContent = "";
-  renderLadder();
-}
-
-function checkAnswer(index) {
-  if (isGameOver) return;
-  clickSFX.play();
-  const correctIndex = questions[current].correct;
-
-  const allButtons = answersEl.querySelectorAll("button");
-  allButtons.forEach(btn => btn.disabled = true);
-
-  if (index === correctIndex) {
-    statusEl.textContent = "Correct!";
-    current++;
-    setTimeout(loadQuestion, 1000);
-  } else {
-    statusEl.textContent = "Wrong answer!";
-    setTimeout(gameOver, 1000);
+// Shuffle questions
+function shuffleQuestions() {
+  for (let i = questions.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [questions[i], questions[j]] = [questions[j], questions[i]];
   }
 }
 
-function renderLadder() {
-  moneyLadderEl.innerHTML = "";
-  moneyLadder.forEach((amount, index) => {
-    const level = document.createElement("div");
-    level.className = index === current ? "active" : "";
-    level.innerHTML = `<span>Q${index + 1}</span> <span>${amount}</span>`;
-    moneyLadderEl.appendChild(level);
+function startGame() {
+  shuffleQuestions();
+  currentQuestionIndex = 0;
+  usedFifty = false;
+  usedAudience = false;
+  usedPhone = false;
+  resultScreen.style.display = "none";
+  updateLifelineStyles();
+  loadQuestion();
+  updateMoneyLadder();
+}
+
+function loadQuestion() {
+  clearInterval(timer);
+  timeLeft = 30;
+  updateTimerDisplay();
+  timer = setInterval(() => {
+    timeLeft--;
+    updateTimerDisplay();
+    if (timeLeft <= 0) {
+      clearInterval(timer);
+      endGame("Time's up! You lost.");
+    }
+  }, 1000);
+
+  const current = questions[currentQuestionIndex];
+  questionEl.textContent = current.question;
+  answersEl.innerHTML = "";
+
+  current.answers.forEach((answer, index) => {
+    const li = document.createElement("li");
+    li.textContent = answer;
+    li.onclick = () => selectAnswer(index);
+    answersEl.appendChild(li);
   });
+
+  updateMoneyLadder();
 }
 
-function gameOver() {
-  isGameOver = true;
-  clearInterval(timerId);
-  gameScreen.classList.add("hidden");
-  gameOverScreen.classList.remove("hidden");
-  finalPrize.textContent = `You won: ${moneyLadder[current - 1] || "$0"}`;
-  backgroundMusic.pause();
+function updateTimerDisplay() {
+  timerEl.textContent = `⏱️ ${Math.max(0, timeLeft)}s`;
 }
 
-function winGame() {
-  isGameOver = true;
-  clearInterval(timerId);
-  gameScreen.classList.add("hidden");
-  gameOverScreen.classList.remove("hidden");
-  finalPrize.textContent = `Congratulations! You won the top prize of ${moneyLadder[moneyLadder.length - 1]}!`;
-  backgroundMusic.pause();
+function selectAnswer(index) {
+  clearInterval(timer);
+  const correct = questions[currentQuestionIndex].correct;
+  if (index === correct) {
+    currentQuestionIndex++;
+    if (currentQuestionIndex === questions.length) {
+      endGame("🎉 Congratulations! You won the game!");
+    } else {
+      loadQuestion();
+    }
+  } else {
+    endGame("❌ Wrong answer! Game over.");
+  }
 }
 
-// Lifeline: 50/50
-fiftyBtn.onclick = () => {
+function endGame(message) {
+  resultMessage.textContent = message;
+  resultScreen.style.display = "flex";
+}
+
+playAgainBtn.onclick = () => {
+  usedFifty = false;
+  usedAudience = false;
+  usedPhone = false;
+  startGame();
+};
+
+lifelineFiftyBtn.onclick = () => {
   if (usedFifty) return;
   usedFifty = true;
-  updateLifelineButtons();
+  const current = questions[currentQuestionIndex];
+  const correct = current.correct;
+  const indices = [0, 1, 2, 3].filter(i => i !== correct);
+  shuffleArray(indices);
+  const toRemove = indices.slice(0, 2);
 
-  const q = questions[current];
-  const correct = q.correct;
-
-  let remaining = [0, 1, 2, 3].filter(i => i !== correct);
-  remaining.sort(() => Math.random() - 0.5);
-  const toRemove = remaining.slice(0, 2);
-
-  const buttons = answersEl.querySelectorAll("button");
-  toRemove.forEach(i => {
-    buttons[i].disabled = true;
-    buttons[i].textContent = "";
+  Array.from(answersEl.children).forEach((li, idx) => {
+    if (toRemove.includes(idx)) li.style.visibility = "hidden";
   });
+
+  updateLifelineStyles();
 };
 
-// Lifeline: Audience
-audienceBtn.onclick = () => {
+lifelineAudienceBtn.onclick = () => {
   if (usedAudience) return;
   usedAudience = true;
-  updateLifelineButtons();
-
-  const correct = questions[current].correct;
-  const buttons = answersEl.querySelectorAll("button");
-
-  buttons[correct].textContent += " 👥";
+  alert("📊 Audience suggests: " + questions[currentQuestionIndex].answers[questions[currentQuestionIndex].correct]);
+  updateLifelineStyles();
 };
 
-// Lifeline: Phone
-phoneBtn.onclick = () => {
+lifelinePhoneBtn.onclick = () => {
   if (usedPhone) return;
   usedPhone = true;
-  updateLifelineButtons();
-
-  const correct = questions[current].correct;
-  const buttons = answersEl.querySelectorAll("button");
-
-  buttons[correct].textContent += " ☎️";
+  alert("📞 Phone a friend says: " + questions[currentQuestionIndex].answers[questions[currentQuestionIndex].correct]);
+  updateLifelineStyles();
 };
+
+function updateLifelineStyles() {
+  lifelineFiftyBtn.style.opacity = usedFifty ? "0.5" : "1";
+  lifelineAudienceBtn.style.opacity = usedAudience ? "0.5" : "1";
+  lifelinePhoneBtn.style.opacity = usedPhone ? "0.5" : "1";
+}
+
+function updateMoneyLadder() {
+  const levels = [...Array(15).keys()].map(i => i + 1).reverse();
+  moneyLadderEl.innerHTML = levels
+    .map(
+      level => `<li class="${15 - currentQuestionIndex === level ? "active" : ""}">Question ${level}</li>`
+    )
+    .join("");
+}
+
+function shuffleArray(array) {
+  for (let i = array.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [array[i], array[j]] = [array[j], array[i]];
+  }
+}
+
+startGame();
