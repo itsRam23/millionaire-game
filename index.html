@@ -38,11 +38,22 @@
     <button id="play-again">Play Again</button>
   </div>
 
-  <audio id="bgmusic" loop autoplay src="C:\Users\itsrm\Downloads\millionaire-game\bgmusic.wav"></audio>
-  <audio id="correct-sfx" src="C:\Users\itsrm\Downloads\millionaire-game\correct.mp3"></audio>
-  <audio id="lose-sfx" src="C:\Users\itsrm\Downloads\millionaire-game\oh.wav"></audio>
-  <audio id="win-sfx" src="C:\Users\itsrm\Downloads\millionaire-game\yey.wav"></audio>
-  <audio id="click-sfx" src="C:\Users\itsrm\Downloads\millionaire-game\click.mp3"></audio>
+  <audio id="bgmusic" loop autoplay>
+    <source src="bgmusic.wav" type="audio/wav">
+    Your browser does not support the audio element.
+  </audio>
+  <audio id="correct-sfx">
+    <source src="correct.mp3" type="audio/mpeg">
+  </audio>
+  <audio id="lose-sfx">
+    <source src="oh.wav" type="audio/wav">
+  </audio>
+  <audio id="win-sfx">
+    <source src="yey.wav" type="audio/wav">
+  </audio>
+  <audio id="click-sfx">
+    <source src="click.mp3" type="audio/mpeg">
+  </audio>
 
   <script src="script.js"></script>
 </body>
