@@ -1,3 +1,4 @@
+
 document.addEventListener("DOMContentLoaded", () => {
   const startButton    = document.getElementById("start-button");
   const playAgainBtn   = document.getElementById("play-again");
@@ -14,11 +15,16 @@ document.addEventListener("DOMContentLoaded", () => {
   const resultMessage  = document.getElementById("game-over-title");
   const finalPrizeEl   = document.getElementById("final-prize");
 
-  const bgMusic    = document.getElementById("bgmusic");
-  const correctSfx = document.getElementById("correct-sfx");
-  const loseSfx    = document.getElementById("lose-sfx");
-  const winSfx     = document.getElementById("win-sfx");
-  const clickSfx   = document.getElementById("click-sfx");
+
+  const bgMusic    = new Audio("bgmusic.wav");
+  const correctSfx = new Audio("correct.mp3");
+  const loseSfx    = new Audio("oh.wav");
+  const winSfx     = new Audio("yey.wav");
+  const clickSfx   = new Audio("click.mp3");
+
+
+  bgMusic.loop = true;
+
 
   document.querySelectorAll("button").forEach(btn => {
     btn.addEventListener("click", () => {
