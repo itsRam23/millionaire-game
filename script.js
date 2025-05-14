@@ -14,6 +14,19 @@ document.addEventListener("DOMContentLoaded", () => {
   const resultMessage  = document.getElementById("game-over-title");
   const finalPrizeEl   = document.getElementById("final-prize");
 
+  const bgMusic    = document.getElementById("bgmusic");
+  const correctSfx = document.getElementById("correct-sfx");
+  const loseSfx    = document.getElementById("lose-sfx");
+  const winSfx     = document.getElementById("win-sfx");
+  const clickSfx   = document.getElementById("click-sfx");
+
+  document.querySelectorAll("button").forEach(btn => {
+    btn.addEventListener("click", () => {
+      clickSfx.currentTime = 0;
+      clickSfx.play();
+    });
+  });
+
   const allQuestions = [
     { q:"What is the capital of France?", a:["Paris","London","Berlin","Rome"], c:0 },
     { q:"What is the largest ocean on Earth?", a:["Atlantic","Indian","Arctic","Pacific"], c:3 },
@@ -75,7 +88,6 @@ document.addEventListener("DOMContentLoaded", () => {
     { q:"Smallest prime >100?", a:["101","103","107","109"], c:0 },
     { q:"Capital of New Zealand?", a:["Auckland","Wellington","Christchurch","Hamilton"], c:1 },
 
-    // 35 additional general‑knowledge questions to reach 100
     { q:"Which country’s flag features a maple leaf?", a:["Canada","Australia","New Zealand","Switzerland"], c:0 },
     { q:"Chemical symbol for gold?", a:["Au","Ag","Gd","Go"], c:0 },
     { q:"Who painted the Sistine Chapel ceiling?", a:["Leonardo","Raphael","Donatello","Michelangelo"], c:3 },
@@ -117,9 +129,9 @@ document.addEventListener("DOMContentLoaded", () => {
   ];
 
   const moneyLadder = [
-    "$100", "$200", "$300", "$500", "$1,000",
-    "$2,000", "$4,000", "$8,000", "$16,000", "$32,000",
-    "$64,000", "$125,000", "$250,000", "$500,000", "$1,000,000"
+    "$100","$200","$300","$500","$1,000",
+    "$2,000","$4,000","$8,000","$16,000","$32,000",
+    "$64,000","$125,000","$250,000","$500,000","$1,000,000"
   ];
 
   let questions = [];
@@ -138,6 +150,8 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   function startGame() {
+    bgMusic.currentTime = 0;
+    bgMusic.play();
     const pool = allQuestions.slice();
     shuffleArray(pool);
     questions = pool.slice(0, 15);
@@ -183,6 +197,8 @@ document.addEventListener("DOMContentLoaded", () => {
     clearInterval(timerId);
     const correct = questions[currentIndex].c;
     if (idx === correct) {
+      correctSfx.currentTime = 0;
+      correctSfx.play();
       currentIndex++;
       if (currentIndex === questions.length) return endGame(true);
       loadQuestion();
@@ -195,10 +211,15 @@ document.addEventListener("DOMContentLoaded", () => {
     clearInterval(timerId);
     gameScreen.classList.add("hidden");
     gameOverScreen.classList.remove("hidden");
+    bgMusic.pause();
     if (didWin) {
+      winSfx.currentTime = 0;
+      winSfx.play();
       resultMessage.textContent = "🎉 You won the top prize!";
       finalPrizeEl.textContent = moneyLadder[14];
     } else {
+      loseSfx.currentTime = 0;
+      loseSfx.play();
       resultMessage.textContent = "❌ Game Over";
       finalPrizeEl.textContent = currentIndex > 0
         ? moneyLadder[currentIndex - 1]
